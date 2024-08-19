@@ -1,7 +1,7 @@
 import XCTest
-@testable import eden_app
+@testable import Content
 
-final class eden_appTests: XCTestCase {
+final class ContentTests: XCTestCase {
     func testExample() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest
