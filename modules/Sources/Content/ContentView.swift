@@ -1,17 +1,63 @@
 import SwiftUI
 import ComposableArchitecture
 
+public let cards: [Card] = [
+  .init(title: "Claim your mornings", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
+  .init(title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"),
+  .init(title: "Title 3", description: "Subtitle 3")
+]
+
+@Reducer
+public struct Content {
+  @ObservableState
+  public struct State: Equatable {
+    var cards: [Card]
+    public init(cards: [Card]) {
+      self.cards = cards
+    }
+  }
+
+  public init () {}
+}
+
+public struct ContentView: View {
+  @Bindable var store: StoreOf<Content>
+
+  public init(store: StoreOf<Content>) {
+    self.store = store
+  }
+
+  public var body: some View {
+    NavigationView {
+      VStack {
+        HStack {
+          Text("Audited for productivity")
+            .font(.title)
+          Spacer()
+        }
+        .padding(.horizontal)
+        ScrollView {
+          ForEach(store.cards, id: \.self) { card in
+            CardView(card: card)
+          }
+          .padding(.vertical)
+          .padding(.horizontal, 8)
+        }
+      }
+      .navigationTitle("Your iPhone")
+      .background(Color(UIColor.systemGroupedBackground))
+    }
+  }
+}
+
 struct CardView: View {
   @Environment(\.colorScheme) var colorScheme
-
-  var title: String
-  var description: String
-  var imageName: String
+  let card: Card
 
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Text(title)
+        Text(card.title)
           .font(.headline)
           .foregroundColor(.primary)
         Spacer()
@@ -24,7 +70,7 @@ struct CardView: View {
       }
       .padding(.bottom, 2)
 
-      Text(description)
+      Text(card.description)
         .font(.subheadline)
         .foregroundColor(.secondary)
         .padding(.bottom, 8)
@@ -59,7 +105,6 @@ struct CardView: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
       }
-
       .frame(maxWidth: .infinity)
     }
     .padding()
@@ -69,43 +114,12 @@ struct CardView: View {
     .padding(.horizontal)
   }
 }
-public struct ContentView: View {
-
-  let items = [
-    ("Claim your mornings", "Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
-    ("Take control of Youtube", "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"),
-    ("Title 3", "Subtitle 3")
-  ]
-
-  public init() {}
-
-  public var body: some View {
-    NavigationView {
-      VStack {
-        HStack {
-          Text("Audited for productivity")
-            .font(.title)
-          Spacer()
-        }
-        .padding(.horizontal)
-        ScrollView {
-          ForEach(items, id: \.0) { item in
-            CardView(
-              title: item.0,
-              description: item.1,
-              imageName: "person.crop.circle.fill.badge.checkmark"
-            )
-          }
-          .padding(.vertical)
-          .padding(.horizontal, 8)
-        }
-      }
-      .navigationTitle("Your iPhone")
-      .background(Color(UIColor.systemGroupedBackground))
-    }
-  }
-}
 
 #Preview {
-  ContentView()
+  ContentView(
+    store: .init(
+      initialState: Content.State(cards: cards),
+      reducer: { Content() }
+    )
+  )
 }

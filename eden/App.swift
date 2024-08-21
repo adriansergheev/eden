@@ -5,7 +5,12 @@ import Content
 struct EdenApp: App {
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      ContentView(
+        store: .init(
+          initialState: Content.State(cards: cards),
+          reducer: { Content() }
+        )
+      )
     }
   }
 }
