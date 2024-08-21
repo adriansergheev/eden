@@ -1,30 +1,36 @@
 import SwiftUI
-import ComposableArchitecture
+import SwiftUINavigation
 
 public let cards: [Card] = [
-  .init(title: "Claim your mornings", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
-  .init(title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"),
-  .init(title: "Title 3", description: "Subtitle 3")
+  .init(id: UUID(), title: "Claim your mornings", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
+  .init(id: UUID(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", isSolved: true),
+  .init(id: UUID(), title: "Title 3", description: "Subtitle 3")
 ]
 
-@Reducer
-public struct Content {
-  @ObservableState
-  public struct State: Equatable {
-    var cards: [Card]
-    public init(cards: [Card]) {
-      self.cards = cards
-    }
+@MainActor
+@Observable
+public class ContentModel {
+  @CasePathable
+  enum Destination {
+    case detail(Card)
+  }
+  var destination: Destination?
+  var cards: [Card]
+
+  public init(cards: [Card]) {
+    self.cards = cards
   }
 
-  public init () {}
+  func whyShouldYouCareButtonTapped(_ card: Card) {
+    destination = .detail(card)
+  }
 }
 
 public struct ContentView: View {
-  @Bindable var store: StoreOf<Content>
+  @State var model: ContentModel
 
-  public init(store: StoreOf<Content>) {
-    self.store = store
+  public init(model: ContentModel) {
+    self.model = model
   }
 
   public var body: some View {
@@ -37,15 +43,42 @@ public struct ContentView: View {
         }
         .padding(.horizontal)
         ScrollView {
-          ForEach(store.cards, id: \.self) { card in
-            CardView(card: card)
+          VStack {
+            Section {
+              ForEach(model.cards.filter { !$0.isSolved }) { card in
+                CardView(
+                  card: card,
+                  secondaryAction: { model.whyShouldYouCareButtonTapped(card) }
+                )
+              }
+            }
+            Section {
+              ForEach(model.cards.filter { $0.isSolved }) { card in
+                CardView(card: card)
+              }
+            } header: {
+              HStack {
+                VStack {
+                  Divider()
+                }
+                Text("Resolved")
+                  .fontWeight(.thin)
+                  .font(.subheadline)
+                VStack {
+                  Divider()
+                }
+              }
+            }
           }
-          .padding(.vertical)
+          .padding(.vertical, 4)
           .padding(.horizontal, 8)
         }
       }
       .navigationTitle("Your iPhone")
       .background(Color(UIColor.systemGroupedBackground))
+    }
+    .sheet(item: $model.destination.detail) { _ in
+      CardDetailView()
     }
   }
 }
@@ -53,6 +86,8 @@ public struct ContentView: View {
 struct CardView: View {
   @Environment(\.colorScheme) var colorScheme
   let card: Card
+
+  var secondaryAction: (() -> Void)?
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -77,19 +112,19 @@ struct CardView: View {
 
       HStack {
         Button(action: {
-          // Why you should care action
+          secondaryAction?()
         }) {
           HStack {
             Image(systemName: "play.circle.fill")
-              .foregroundColor(.green)
+              .foregroundColor(card.isSolved ? .gray : .green)
             Text("Why you should care")
               .font(.subheadline)
-              .foregroundColor(.green)
+              .foregroundColor(card.isSolved ? .gray : .green)
           }
           .padding(8)
           .overlay(
             RoundedRectangle(cornerRadius: 8)
-              .stroke(Color.green, lineWidth: 1)
+              .stroke(card.isSolved ? .gray : .green, lineWidth: 1)
           )
         }
         Spacer()
@@ -101,7 +136,7 @@ struct CardView: View {
             .foregroundColor(.white)
             .padding(8)
             .frame(minWidth: 80)
-            .background(Color.green)
+            .background(card.isSolved ? .gray : .green)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
       }
@@ -111,15 +146,14 @@ struct CardView: View {
     .background(colorScheme == .light ? Color.white : nil)
     .clipShape(RoundedRectangle(cornerRadius: 15))
     .shadow(radius: 5)
-    .padding(.horizontal)
+    .padding(.horizontal, 8)
+    .padding(.vertical, 4)
+    .disabled(card.isSolved)
   }
 }
 
 #Preview {
   ContentView(
-    store: .init(
-      initialState: Content.State(cards: cards),
-      reducer: { Content() }
-    )
+    model: .init(cards: cards)
   )
 }

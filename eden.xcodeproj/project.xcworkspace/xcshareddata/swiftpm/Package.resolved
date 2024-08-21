@@ -1,15 +1,6 @@
 {
-  "originHash" : "1fa4c03f256c687889944e6ca497a74e35e9111eac76392ecb42e2724c8fc586",
+  "originHash" : "9bbc43e675ecddcb198a3d9674f87bf4696b4c9264f0260175272beb3448315a",
   "pins" : [
-    {
-      "identity" : "combine-schedulers",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/combine-schedulers",
-      "state" : {
-        "revision" : "9fa31f4403da54855f1e2aeaeff478f4f0e40b13",
-        "version" : "1.0.2"
-      }
-    },
     {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
@@ -17,33 +8,6 @@
       "state" : {
         "revision" : "71344dd930fde41e8f3adafe260adcbb2fc2a3dc",
         "version" : "1.5.4"
-      }
-    },
-    {
-      "identity" : "swift-clocks",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-clocks",
-      "state" : {
-        "revision" : "3581e280bf0d90c3fb9236fb23e75a5d8c46b533",
-        "version" : "1.0.4"
-      }
-    },
-    {
-      "identity" : "swift-collections",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-collections.git",
-      "state" : {
-        "revision" : "3d2dc41a01f9e49d84f0a3925fb858bed64f702d",
-        "version" : "1.1.2"
-      }
-    },
-    {
-      "identity" : "swift-composable-architecture",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-composable-architecture",
-      "state" : {
-        "revision" : "b432441cbc11a38c678312bad1a01138a7cd64e0",
-        "version" : "1.13.0"
       }
     },
     {
@@ -65,30 +29,12 @@
       }
     },
     {
-      "identity" : "swift-dependencies",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-dependencies",
-      "state" : {
-        "revision" : "d7472be6b3c89251ce4c0db07d32405b43426781",
-        "version" : "1.3.7"
-      }
-    },
-    {
-      "identity" : "swift-identified-collections",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-identified-collections",
-      "state" : {
-        "revision" : "2f5ab6e091dd032b63dacbda052405756010dc3b",
-        "version" : "1.1.0"
-      }
-    },
-    {
       "identity" : "swift-navigation",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "339ba3e305dc727b5baa6ddb476430a842167d4e",
-        "version" : "2.0.5"
+        "revision" : "70321c441d51b0b893c3abbf79687f550a027fde",
+        "version" : "2.0.6"
       }
     },
     {
