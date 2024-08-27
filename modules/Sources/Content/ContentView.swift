@@ -1,10 +1,11 @@
 import SwiftUI
 import SwiftUINavigation
 
+@MainActor
 public let cards: [Card] = [
   .init(id: UUID(), title: "Claim your mornings", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
   .init(id: UUID(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", isSolved: true),
-  .init(id: UUID(), title: "Title 3", description: "Subtitle 3")
+  .init(id: UUID(), title: "Instagram", description: "Coming soon...")
 ]
 
 @MainActor
@@ -37,8 +38,8 @@ public struct ContentView: View {
     NavigationView {
       VStack {
         HStack {
-          Text("Audited for productivity")
-            .font(.title)
+          Text("Working for you")
+            .font(.callout)
           Spacer()
         }
         .padding(.horizontal)
