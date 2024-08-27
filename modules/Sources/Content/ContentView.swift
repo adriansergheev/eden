@@ -79,7 +79,8 @@ public struct ContentView: View {
       .background(Color(UIColor.systemGroupedBackground))
     }
     .sheet(item: $model.destination.detail) { _ in
-      CardDetailView()
+//      CardDetailView()
+      ClaimView(model: .init())
     }
   }
 }
