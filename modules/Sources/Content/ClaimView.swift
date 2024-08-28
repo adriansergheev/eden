@@ -3,11 +3,19 @@ import SwiftUI
 import FamilyControls
 import DeviceActivity
 
+extension DeviceActivityName {
+  static let daily = DeviceActivityName("eden.daily")
+}
+
+extension DeviceActivityEvent.Name {
+  static let tbd = Self("eden.tbd")
+}
+
 @MainActor
 @Observable
 final class ClaimModel {
-  var activitySelection = FamilyActivitySelection()
-  init() {}
+  public var activitySelection = FamilyActivitySelection()
+  public init() {}
 
   func authorise() async {
     let authorizationCenter = AuthorizationCenter.shared
@@ -23,13 +31,14 @@ final class ClaimModel {
 
   func monitor() {
     let schedule = DeviceActivitySchedule(
-      intervalStart: DateComponents(hour: 7, minute: 0, second: 0),
-      intervalEnd: DateComponents(hour: 12, minute: 0, second: 0),
+      intervalStart: DateComponents(hour: 0, minute: 0),
+      intervalEnd: DateComponents(hour: 23, minute: 59),
       repeats: true
     )
 
     let timeLimitMinutes = 30
 
+    // this hits eventDidReachThreshold
     let event = DeviceActivityEvent(
       applications: activitySelection.applicationTokens,
       categories: activitySelection.categoryTokens,
@@ -40,16 +49,11 @@ final class ClaimModel {
     let center = DeviceActivityCenter()
     center.stopMonitoring()
 
-    let activity = DeviceActivityName("Eden.ScreenTime")
-    let eventName = DeviceActivityEvent.Name("Eden.Morning")
-
     do {
       try center.startMonitoring(
-        activity,
+        .daily,
         during: schedule,
-        events: [
-          eventName: event
-        ]
+        events: [.tbd: event]
       )
       print("🍾 monitoring")
     } catch let error {
@@ -94,8 +98,8 @@ struct ClaimView: View {
       isPresented: self.$isPickerPresented,
       selection: $model.activitySelection
     )
-    .sheet(isPresented: $isDemoModalPresented, content: {
+    .sheet(isPresented: $isDemoModalPresented) {
       DeviceActivityView()
-    })
+    }
   }
 }
