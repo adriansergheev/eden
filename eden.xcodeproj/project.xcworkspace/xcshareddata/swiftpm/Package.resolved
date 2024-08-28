@@ -1,5 +1,5 @@
 {
-  "originHash" : "9bbc43e675ecddcb198a3d9674f87bf4696b4c9264f0260175272beb3448315a",
+  "originHash" : "2b9d28136454858dfb4f2a215c4f2ff63a07f1a9bf793efb9f523e62fbe727a4",
   "pins" : [
     {
       "identity" : "swift-case-paths",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "71344dd930fde41e8f3adafe260adcbb2fc2a3dc",
         "version" : "1.5.4"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections",
+      "state" : {
+        "revision" : "9bf03ff58ce34478e66aaee630e491823326fd06",
+        "version" : "1.1.3"
       }
     },
     {
@@ -33,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "70321c441d51b0b893c3abbf79687f550a027fde",
-        "version" : "2.0.6"
+        "revision" : "e834b3760731160d7d448509ee6a1408c8582a6b",
+        "version" : "2.2.0"
       }
     },
     {
@@ -42,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-perception",
       "state" : {
-        "revision" : "1552c8f722ac256cc0b8daaf1a7073217d4fcdfb",
-        "version" : "1.3.4"
+        "revision" : "bc67aa8e461351c97282c2419153757a446ae1c9",
+        "version" : "1.3.5"
       }
     },
     {
@@ -52,7 +61,7 @@
       "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
         "revision" : "515f79b522918f83483068d99c68daeb5116342d",
-        "version" : "600.0.0-prerelease-2024-08-14"
+        "version" : "600.0.0-prerelease-2024-08-20"
       }
     },
     {
@@ -60,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "c6809a193975cab4d5308c64bd1d51e0df467928",
-        "version" : "1.2.3"
+        "revision" : "96beb108a57f24c8476ae1f309239270772b2940",
+        "version" : "1.2.5"
       }
     }
   ],
