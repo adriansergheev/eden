@@ -1,4 +1,5 @@
 import SwiftUI
+//import ManagedSettings // shield with custom ui
 import FamilyControls
 import DeviceActivity
 
@@ -61,6 +62,8 @@ struct ClaimView: View {
   @State var isPickerPresented = false
   @State var model: ClaimModel
 
+  @State var isDemoModalPresented: Bool = false
+
   init(model: ClaimModel) {
     self.model = model
   }
@@ -78,6 +81,11 @@ struct ClaimView: View {
       } label: {
         Text("Monitor")
       }
+      Button {
+        isDemoModalPresented = true
+      } label: {
+        Text("DeviceActivityView")
+      }
     }
     .task {
       await model.authorise()
@@ -86,5 +94,8 @@ struct ClaimView: View {
       isPresented: self.$isPickerPresented,
       selection: $model.activitySelection
     )
+    .sheet(isPresented: $isDemoModalPresented, content: {
+      DeviceActivityView()
+    })
   }
 }
