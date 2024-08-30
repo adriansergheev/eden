@@ -36,16 +36,14 @@ public final class ClaimModel {
 //  }
   @ObservationIgnored
   @Dependency(\.dataManager) var dataManager
+  @ObservationIgnored
+  @Dependency(\.authorizationCenter) var authorizationCenter
 
   public init() {}
 
-  // TODO: move this at the start of the app. Activity report can't show it's thing if this is not hit first.
   func authorise() async {
-    let authorizationCenter = AuthorizationCenter.shared
     do {
-      try await authorizationCenter.requestAuthorization(
-        for: .individual
-      )
+      try await authorizationCenter.requestAuthorization()
       print("✅")
     } catch {
       print("🔴")
@@ -135,4 +133,8 @@ struct ScreenTimeResolveView: View {
       selection: $model.activitySelection
     )
   }
+}
+
+#Preview {
+  ScreenTimeResolveView(model: .init())
 }

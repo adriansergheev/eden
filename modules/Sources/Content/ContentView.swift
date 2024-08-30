@@ -1,7 +1,6 @@
 import SwiftUI
+import IssueReporting
 import SwiftUINavigation
-
-//todo: dependency for screen time
 
 @MainActor
 public let cards: [Card] = [
@@ -41,8 +40,13 @@ public class ContentModel {
   func resolveButtonTapped(_ card: Card) {
     destination = .resolve(card)
   }
+
+  func dismissCardButtonTapped() {
+    destination = nil
+  }
 }
 
+@MainActor
 public struct ContentView: View {
   @State var model: ContentModel
 
@@ -72,11 +76,7 @@ public struct ContentView: View {
             }
             Section {
               ForEach(model.cards.filter { $0.isSolved }) { card in
-                CardView(
-                  card: card, 
-                  primaryAction: { fatalError("not implemented") },
-                  secondaryAction: { fatalError("not implemented") }
-                )
+                CardView(card: card)
               }
             } header: {
               HStack {
@@ -100,12 +100,27 @@ public struct ContentView: View {
       .background(Color(UIColor.systemGroupedBackground))
     }
     .sheet(item: $model.destination) { destination in
-      switch destination {
-      case let .detail:
-        ScreenTimeCardDetailView()
-      case let .resolve:
-        ScreenTimeResolveView(model: .init())
+//      NavigationView {
+        makeDestination(destination)
+//        ScreenTimeResolveView(model: .init())
       }
+//      .toolbar {
+//        ToolbarItem(placement: .cancellationAction) {
+//          Button("Dismiss") {
+//            self.model.dismissCardButtonTapped()
+//          }
+//        }
+//      }
+//    }
+  }
+
+  @ViewBuilder
+  func makeDestination(_ destination: ContentModel.Destination) -> some View {
+    switch destination {
+    case .detail:
+      ScreenTimeCardDetailView()
+    case .resolve:
+      ScreenTimeResolveView(model: .init())
     }
   }
 }
@@ -114,8 +129,8 @@ struct CardView: View {
   @Environment(\.colorScheme) var colorScheme
   let card: Card
 
-  var primaryAction: (() -> Void)
-  var secondaryAction: (() -> Void)
+  var primaryAction: (() -> Void)? = unimplemented("primaryAction")
+  var secondaryAction: (() -> Void)? = unimplemented("secondaryAction")
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -140,7 +155,7 @@ struct CardView: View {
 
       HStack {
         Button(action: {
-          secondaryAction()
+          secondaryAction?()
         }) {
           HStack {
             Image(systemName: "play.circle.fill")
@@ -157,7 +172,7 @@ struct CardView: View {
         }
         Spacer()
         Button(action: {
-          primaryAction()
+          primaryAction?()
         }) {
           Text("Resolve")
             .font(.subheadline)
