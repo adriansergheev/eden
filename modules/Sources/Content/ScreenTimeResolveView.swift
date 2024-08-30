@@ -43,22 +43,21 @@ public final class ClaimModel {
   }
 
   func monitor() {
-    let startDate = Date(timeIntervalSinceNow: 1.0) // padding added to avoid invalid DAM ranges < 15 mins.
-    let endDate = DateComponents(hour: 23, minute: 59)
+//    let startDate = Date(timeIntervalSinceNow: 1.0) // padding added to avoid invalid DAM ranges < 15 mins.
+//    let endDate = DateComponents(hour: 23, minute: 59)
+//    let components: Set<Calendar.Component> = [.day, .month, .year, .hour, .minute, .second]
+//    let calendar = Calendar.current
+//    let intervalStart = calendar.dateComponents(components, from: startDate)
+//
 //    let schedule = DeviceActivitySchedule(
-//      intervalStart: DateComponents(hour: 0, minute: 0),
-//      intervalEnd: DateComponents(hour: 23, minute: 59),
-//      repeats: true
+//      intervalStart: intervalStart,
+//      intervalEnd: endDate,
+//      repeats: false
 //    )
-
-    let components: Set<Calendar.Component> = [.day, .month, .year, .hour, .minute, .second]
-    let calendar = Calendar.current
-    let intervalStart = calendar.dateComponents(components, from: startDate)
-
     let schedule = DeviceActivitySchedule(
-      intervalStart: intervalStart,
-      intervalEnd: endDate,
-      repeats: false
+      intervalStart: DateComponents(hour: 0, minute: 0),
+      intervalEnd: DateComponents(hour: 23, minute: 59),
+      repeats: true
     )
 
     let timeLimitMinutes = 1
