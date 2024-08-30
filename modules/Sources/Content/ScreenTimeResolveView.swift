@@ -1,3 +1,4 @@
+import Dependencies
 import SwiftUI
 import ManagedSettings
 import FamilyControls
@@ -15,17 +16,26 @@ extension ManagedSettingsStore.Name {
   static let morning = Self("eden.morning")
 }
 
+extension URL {
+  fileprivate static let morning = FileManager.default.containerURL(
+    forSecurityApplicationGroupIdentifier: "group.eden.documents"
+  )!.appendingPathComponent("eden-morning.json")
+}
+
 @MainActor
 @Observable
 public final class ClaimModel {
   @ObservationIgnored
   let morningStore = ManagedSettingsStore(named: .morning)
   @ObservationIgnored
-  var activitySelection = FamilyActivitySelection() {
-    didSet {
-      morningStore.shield.applications = activitySelection.applicationTokens
-    }
-  }
+  var activitySelection = FamilyActivitySelection() 
+//  {
+//    didSet {
+//      morningStore.shield.applications = activitySelection.applicationTokens
+//    }
+//  }
+  @ObservationIgnored
+  @Dependency(\.dataManager) var dataManager
 
   public init() {}
 
@@ -43,20 +53,20 @@ public final class ClaimModel {
   }
 
   func monitor() {
-//    let startDate = Date(timeIntervalSinceNow: 1.0) // padding added to avoid invalid DAM ranges < 15 mins.
-//    let endDate = DateComponents(hour: 23, minute: 59)
-//    let components: Set<Calendar.Component> = [.day, .month, .year, .hour, .minute, .second]
-//    let calendar = Calendar.current
-//    let intervalStart = calendar.dateComponents(components, from: startDate)
-//
-//    let schedule = DeviceActivitySchedule(
-//      intervalStart: intervalStart,
-//      intervalEnd: endDate,
-//      repeats: false
-//    )
+    //    let startDate = Date(timeIntervalSinceNow: 1.0) // padding added to avoid invalid DAM ranges < 15 mins.
+    //    let endDate = DateComponents(hour: 23, minute: 59)
+    //    let components: Set<Calendar.Component> = [.day, .month, .year, .hour, .minute, .second]
+    //    let calendar = Calendar.current
+    //    let intervalStart = calendar.dateComponents(components, from: startDate)
+    //
+    //    let schedule = DeviceActivitySchedule(
+    //      intervalStart: intervalStart,
+    //      intervalEnd: endDate,
+    //      repeats: false
+    //    )
     let schedule = DeviceActivitySchedule(
-      intervalStart: DateComponents(hour: 0, minute: 0),
-      intervalEnd: DateComponents(hour: 23, minute: 59),
+      intervalStart: DateComponents(hour: 8, minute: 0),
+      intervalEnd: DateComponents(hour: 12, minute: 59),
       repeats: true
     )
 
@@ -79,6 +89,7 @@ public final class ClaimModel {
         during: schedule,
         events: [.tbd: event]
       )
+      try dataManager.save(JSONEncoder().encode(activitySelection), to: .morning)
       print("🍾 monitoring")
     } catch let error {
       print("🚗 \(error)")

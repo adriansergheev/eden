@@ -1,8 +1,16 @@
 import DeviceActivity
+import Foundation
 import ManagedSettings
+import FamilyControls
 
 extension ManagedSettingsStore.Name {
   static let morning = Self("eden.morning")
+}
+
+extension URL {
+  fileprivate static let morning = FileManager.default.containerURL(
+    forSecurityApplicationGroupIdentifier: "group.eden.documents"
+  )!.appendingPathComponent("eden-morning.json")
 }
 
 // Optionally override any of the functions below.
@@ -13,8 +21,13 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
 
   override func intervalDidStart(for activity: DeviceActivityName) {
     super.intervalDidStart(for: activity)
-
-    //TODO: figure out if morningStore has to hit some one-way database
+    do {
+      let applications = try JSONDecoder().decode(
+        FamilyActivitySelection.self,
+        from: try Data(contentsOf: .morning)
+      ).applicationTokens
+      morningStore.shield.applications = applications
+    } catch {}
   }
 
   override func intervalDidEnd(for activity: DeviceActivityName) {
@@ -41,7 +54,10 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     // Handle the warning before the interval ends.
   }
 
-  override func eventWillReachThresholdWarning(_ event: DeviceActivityEvent.Name, activity: DeviceActivityName) {
+  override func eventWillReachThresholdWarning(
+    _ event: DeviceActivityEvent.Name,
+    activity: DeviceActivityName
+  ) {
     super.eventWillReachThresholdWarning(event, activity: activity)
     // Handle the warning before the event reaches its threshold.
   }

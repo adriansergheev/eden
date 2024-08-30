@@ -12,6 +12,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.0.6"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.3.9")
   ],
   targets: [
     // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -19,7 +20,9 @@ let package = Package(
     .target(
       name: "Content",
       dependencies: [
-          .product(name: "SwiftUINavigation", package: "swift-navigation")
+        .product(name: "SwiftUINavigation", package: "swift-navigation"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesMacros", package: "swift-dependencies")
       ]
     ),
     .testTarget(name: "ContentTests", dependencies: ["Content"]),
