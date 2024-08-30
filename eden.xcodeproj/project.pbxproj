@@ -303,6 +303,8 @@
 			dependencies = (
 			);
 			name = Activity;
+			packageProductDependencies = (
+			);
 			productName = Activity;
 			productReference = 04A146362C7E7A25004AA0C5 /* Activity.appex */;
 			productType = "com.apple.product-type.app-extension";

@@ -8,14 +8,19 @@ extension DeviceActivityReport.Context {
   static let totalActivity = Self("Total Activity")
 }
 
+struct Activity: Hashable {
+  let categoryNames: [String]
+  let totalDuration: String
+}
+
 struct TotalActivityReport: DeviceActivityReportScene {
   // Define which context your scene will represent.
   let context: DeviceActivityReport.Context = .totalActivity
 
   // Define the custom configuration and the resulting view for this report.
-  let content: (String) -> TotalActivityView
+  let content: ([Activity]) -> TotalActivityView
 
-  func makeConfiguration(representing data: DeviceActivityResults<DeviceActivityData>) async -> String {
+  func makeConfiguration(representing data: DeviceActivityResults<DeviceActivityData>) async -> [Activity] {
     // Reformat the data into a configuration that can be used to create
     // the report's view.
     let formatter = DateComponentsFormatter()
@@ -23,10 +28,31 @@ struct TotalActivityReport: DeviceActivityReportScene {
     formatter.unitsStyle = .abbreviated
     formatter.zeroFormattingBehavior = .dropAll
 
-    let totalActivityDuration = await data.flatMap { $0.activitySegments }.reduce(0, {
-      $0 + $1.totalActivityDuration
-    })
-    return formatter.string(from: totalActivityDuration) ?? "No activity data"
+//    let totalActivityDuration = await data.flatMap { $0.activitySegments }.reduce(0, {
+//      $0 + $1.totalActivityDuration
+//    })
+//    return formatter.string(from: totalActivityDuration) ?? "No activity
+
+    return await data.flatMap { $0.activitySegments }
+      .map { activitySegment -> Activity in
+        var categoryNames: [String] = []
+        let segment = activitySegment.categories
+
+        for await activity in segment {
+          guard let categoryName = activity.category.localizedDisplayName
+          else { break }
+          categoryNames.append(categoryName)
+        }
+        let duration = activitySegment.totalActivityDuration
+        let formattedDuration = formatter.string(from: duration) ?? "No Activity"
+        return Activity(
+          categoryNames: categoryNames,
+          totalDuration: formattedDuration
+        )
+//        return (categoryNames, formattedDuration)
+      }.reduce(into: []) { partialResult, activity in
+        partialResult.append(activity)
+      }
   }
 }
 

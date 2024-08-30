@@ -13,11 +13,15 @@ struct Report: DeviceActivityReportExtension {
 }
 
 struct TotalActivityView: View {
-  let totalActivity: String
+  let totalActivity: [Activity]
 
   var body: some View {
-    Text(totalActivity)
-      .border(.red)
+    List {
+      ForEach(totalActivity, id: \.self) { activity in
+        Text("\(activity.totalDuration)")
+        Text("\(activity.categoryNames.reduce("", +))")
+      }
+    }
   }
 }
 
@@ -25,5 +29,10 @@ struct TotalActivityView: View {
 // members of your app's Xcode target as well as members of your extension's target. You can use
 // Xcode's File Inspector to modify a file's Target Membership.
 #Preview {
-  TotalActivityView(totalActivity: "1h 23m")
+  TotalActivityView(
+    totalActivity: [.init(
+      categoryNames: ["Entertainment"],
+      totalDuration: "300 hours"
+    )]
+  )
 }

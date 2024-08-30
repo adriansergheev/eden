@@ -1,19 +1,32 @@
 import SwiftUI
 import SwiftUINavigation
 
+//todo: make the blocker active
+//todo: dependency for screen time
+
 @MainActor
 public let cards: [Card] = [
   .init(id: UUID(), title: "Claim your mornings", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
   .init(id: UUID(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", isSolved: true),
-  .init(id: UUID(), title: "Instagram", description: "Coming soon...")
+  .init(id: UUID(), title: "Instagram", description: "Coming soon...", isSolved: true)
 ]
 
 @MainActor
 @Observable
 public class ContentModel {
-  @CasePathable
-  enum Destination {
+  
+  enum Destination: Identifiable {
     case detail(Card)
+    case resolve(Card)
+
+    var id: UUID {
+      switch self {
+      case let .detail(card):
+        return card.id
+      case let .resolve(card):
+        return card.id
+      }
+    }
   }
   var destination: Destination?
   var cards: [Card]
@@ -24,6 +37,10 @@ public class ContentModel {
 
   func whyShouldYouCareButtonTapped(_ card: Card) {
     destination = .detail(card)
+  }
+
+  func resolveButtonTapped(_ card: Card) {
+    destination = .resolve(card)
   }
 }
 
@@ -49,13 +66,18 @@ public struct ContentView: View {
               ForEach(model.cards.filter { !$0.isSolved }) { card in
                 CardView(
                   card: card,
+                  primaryAction: { model.resolveButtonTapped(card) },
                   secondaryAction: { model.whyShouldYouCareButtonTapped(card) }
                 )
               }
             }
             Section {
               ForEach(model.cards.filter { $0.isSolved }) { card in
-                CardView(card: card)
+                CardView(
+                  card: card, 
+                  primaryAction: { fatalError("not implemented") },
+                  secondaryAction: { fatalError("not implemented") }
+                )
               }
             } header: {
               HStack {
@@ -78,9 +100,13 @@ public struct ContentView: View {
       .navigationTitle("Your iPhone")
       .background(Color(UIColor.systemGroupedBackground))
     }
-    .sheet(item: $model.destination.detail) { _ in
-      //      CardDetailView()
-      ClaimView(model: .init())
+    .sheet(item: $model.destination) { destination in
+      switch destination {
+      case let .detail(card):
+        CardDetailView()
+      case let .resolve(card):
+        ClaimView(model: .init())
+      }
     }
   }
 }
@@ -89,7 +115,8 @@ struct CardView: View {
   @Environment(\.colorScheme) var colorScheme
   let card: Card
 
-  var secondaryAction: (() -> Void)?
+  var primaryAction: (() -> Void)
+  var secondaryAction: (() -> Void)
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -114,7 +141,7 @@ struct CardView: View {
 
       HStack {
         Button(action: {
-          secondaryAction?()
+          secondaryAction()
         }) {
           HStack {
             Image(systemName: "play.circle.fill")
@@ -131,7 +158,7 @@ struct CardView: View {
         }
         Spacer()
         Button(action: {
-          // Resolve action
+          primaryAction()
         }) {
           Text("Resolve")
             .font(.subheadline)

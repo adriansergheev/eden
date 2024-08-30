@@ -1,5 +1,5 @@
 import SwiftUI
-//import ManagedSettings // shield with custom ui
+import ManagedSettings
 import FamilyControls
 import DeviceActivity
 
@@ -13,10 +13,19 @@ extension DeviceActivityEvent.Name {
 
 @MainActor
 @Observable
-final class ClaimModel {
-  public var activitySelection = FamilyActivitySelection()
+public final class ClaimModel {
+  @ObservationIgnored
+  let store = ManagedSettingsStore()
+  @ObservationIgnored
+  var activitySelection = FamilyActivitySelection() {
+    didSet {
+      store.shield.applications = activitySelection.applicationTokens
+    }
+  }
+
   public init() {}
 
+  // TODO: move this at the start of the app. Activity report can't show it's thing if this is not hit first.
   func authorise() async {
     let authorizationCenter = AuthorizationCenter.shared
     do {
@@ -30,13 +39,26 @@ final class ClaimModel {
   }
 
   func monitor() {
+    let startDate = Date(timeIntervalSinceNow: 1.0) // padding added to avoid invalid DAM ranges < 15 mins.
+    let endDate = DateComponents(hour: 23, minute: 59)
+//    let schedule = DeviceActivitySchedule(
+//      intervalStart: DateComponents(hour: 0, minute: 0),
+//      intervalEnd: DateComponents(hour: 23, minute: 59),
+//      repeats: true
+//    )
+
+
+    let components: Set<Calendar.Component> = [.day, .month, .year, .hour, .minute, .second]
+    let calendar = Calendar.current
+    let intervalStart = calendar.dateComponents(components, from: startDate)
+
     let schedule = DeviceActivitySchedule(
-      intervalStart: DateComponents(hour: 0, minute: 0),
-      intervalEnd: DateComponents(hour: 23, minute: 59),
-      repeats: true
+      intervalStart: intervalStart,
+      intervalEnd: endDate,
+      repeats: false
     )
 
-    let timeLimitMinutes = 30
+    let timeLimitMinutes = 1
 
     // this hits eventDidReachThreshold
     let event = DeviceActivityEvent(
@@ -66,8 +88,6 @@ struct ClaimView: View {
   @State var isPickerPresented = false
   @State var model: ClaimModel
 
-  @State var isDemoModalPresented: Bool = false
-
   init(model: ClaimModel) {
     self.model = model
   }
@@ -78,17 +98,12 @@ struct ClaimView: View {
       Button {
         isPickerPresented = true
       } label: {
-        Text("Select Appplications")
+        Text("Select Applications")
       }
       Button {
         model.monitor()
       } label: {
         Text("Monitor")
-      }
-      Button {
-        isDemoModalPresented = true
-      } label: {
-        Text("DeviceActivityView")
       }
     }
     .task {
@@ -98,8 +113,5 @@ struct ClaimView: View {
       isPresented: self.$isPickerPresented,
       selection: $model.activitySelection
     )
-    .sheet(isPresented: $isDemoModalPresented) {
-      DeviceActivityView()
-    }
   }
 }
