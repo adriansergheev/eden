@@ -8,7 +8,17 @@ import UIKit
 class ShieldConfigurationExtension: ShieldConfigurationDataSource {
   override func configuration(shielding application: Application) -> ShieldConfiguration {
     // Customize the shield as needed for applications.
-    ShieldConfiguration()
+    let configuration = ShieldConfiguration(
+      backgroundBlurStyle: .dark,
+      backgroundColor: .green,
+      icon: nil,
+      title: .init(text: "This is my title", color: .gray),
+      subtitle: .init(text: "This is my subtitle", color: .cyan),
+      primaryButtonLabel: nil,
+      primaryButtonBackgroundColor: .blue,
+      secondaryButtonLabel: nil
+    )
+    return configuration
   }
   
   override func configuration(shielding application: Application, in category: ActivityCategory) -> ShieldConfiguration {

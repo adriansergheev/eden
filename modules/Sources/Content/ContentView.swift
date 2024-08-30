@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftUINavigation
 
-//todo: make the blocker active
 //todo: dependency for screen time
 
 @MainActor
@@ -102,10 +101,10 @@ public struct ContentView: View {
     }
     .sheet(item: $model.destination) { destination in
       switch destination {
-      case let .detail(card):
-        CardDetailView()
-      case let .resolve(card):
-        ClaimView(model: .init())
+      case let .detail:
+        ScreenTimeCardDetailView()
+      case let .resolve:
+        ScreenTimeResolveView(model: .init())
       }
     }
   }

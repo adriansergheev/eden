@@ -4,7 +4,11 @@ import ManagedSettings
 // The system provides a default response for any functions that your subclass doesn't override.
 // Make sure that your class name matches the NSExtensionPrincipalClass in your Info.plist.
 class ShieldActionExtension: ShieldActionDelegate {
-  override func handle(action: ShieldAction, for application: ApplicationToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
+  override func handle(
+    action: ShieldAction,
+    for application: ApplicationToken,
+    completionHandler: @escaping (ShieldActionResponse) -> Void
+  ) {
     // Handle the action as needed.
     switch action {
     case .primaryButtonPressed:
@@ -16,12 +20,20 @@ class ShieldActionExtension: ShieldActionDelegate {
     }
   }
 
-  override func handle(action: ShieldAction, for webDomain: WebDomainToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
+  override func handle(
+    action: ShieldAction,
+    for webDomain: WebDomainToken,
+    completionHandler: @escaping (ShieldActionResponse) -> Void
+  ) {
     // Handle the action as needed.
     completionHandler(.close)
   }
 
-  override func handle(action: ShieldAction, for category: ActivityCategoryToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
+  override func handle(
+    action: ShieldAction,
+    for category: ActivityCategoryToken,
+    completionHandler: @escaping (ShieldActionResponse) -> Void
+  ) {
     // Handle the action as needed.
     completionHandler(.close)
   }

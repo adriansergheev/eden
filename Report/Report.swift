@@ -1,6 +1,8 @@
 import DeviceActivity
 import SwiftUI
 
+//TODO: Figure out if needed for prototype.
+
 @main
 struct Report: DeviceActivityReportExtension {
   var body: some DeviceActivityReportScene {

@@ -11,15 +11,19 @@ extension DeviceActivityEvent.Name {
   static let tbd = Self("eden.tbd")
 }
 
+extension ManagedSettingsStore.Name {
+  static let morning = Self("eden.morning")
+}
+
 @MainActor
 @Observable
 public final class ClaimModel {
   @ObservationIgnored
-  let store = ManagedSettingsStore()
+  let morningStore = ManagedSettingsStore(named: .morning)
   @ObservationIgnored
   var activitySelection = FamilyActivitySelection() {
     didSet {
-      store.shield.applications = activitySelection.applicationTokens
+      morningStore.shield.applications = activitySelection.applicationTokens
     }
   }
 
@@ -46,7 +50,6 @@ public final class ClaimModel {
 //      intervalEnd: DateComponents(hour: 23, minute: 59),
 //      repeats: true
 //    )
-
 
     let components: Set<Calendar.Component> = [.day, .month, .year, .hour, .minute, .second]
     let calendar = Calendar.current
@@ -82,9 +85,13 @@ public final class ClaimModel {
       print("🚗 \(error)")
     }
   }
+
+  func clear() {
+    morningStore.shield.applications = nil
+  }
 }
 
-struct ClaimView: View {
+struct ScreenTimeResolveView: View {
   @State var isPickerPresented = false
   @State var model: ClaimModel
 
@@ -93,8 +100,7 @@ struct ClaimView: View {
   }
 
   var body: some View {
-    VStack {
-      Text("Claim View")
+    VStack(spacing: 16) {
       Button {
         isPickerPresented = true
       } label: {
@@ -103,7 +109,12 @@ struct ClaimView: View {
       Button {
         model.monitor()
       } label: {
-        Text("Monitor")
+        Text("Monitor Morning")
+      }
+      Button {
+        model.clear()
+      } label: {
+        Text("Clear")
       }
     }
     .task {

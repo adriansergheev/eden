@@ -1,28 +1,25 @@
 import DeviceActivity
 import ManagedSettings
+
+extension ManagedSettingsStore.Name {
+  static let morning = Self("eden.morning")
+}
+
 // Optionally override any of the functions below.
 // Make sure that your class name matches the NSExtensionPrincipalClass in your Info.plist.
 class DeviceActivityMonitorExtension: DeviceActivityMonitor {
 
-  let store = ManagedSettingsStore()
+  let morningStore = ManagedSettingsStore(named: .morning)
 
   override func intervalDidStart(for activity: DeviceActivityName) {
     super.intervalDidStart(for: activity)
-    // TOOD: set restrictions
-    //    Task { @MainActor in
-    //      let claimModel = ClaimModel()
-    //      let applications = claimModel.activitySelection.applicationTokens
-    //      if applications.isEmpty {
-    //        store.shield.applications = nil
-    //      } else {
-    //        store.shield.applications = applications
-    //      }
-    //    }
+
+    //TODO: figure out if morningStore has to hit some one-way database
   }
 
   override func intervalDidEnd(for activity: DeviceActivityName) {
     super.intervalDidEnd(for: activity)
-    store.shield.applications = nil
+    morningStore.shield.applications = nil
   }
 
   override func eventDidReachThreshold(
