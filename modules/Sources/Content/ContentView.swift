@@ -12,7 +12,7 @@ public let cards: [Card] = [
 @MainActor
 @Observable
 public class ContentModel {
-  
+
   enum Destination: Identifiable {
     case detail(Card)
     case resolve(Card)
@@ -100,18 +100,17 @@ public struct ContentView: View {
       .background(Color(UIColor.systemGroupedBackground))
     }
     .sheet(item: $model.destination) { destination in
-//      NavigationView {
+      NavigationStack {
         makeDestination(destination)
-//        ScreenTimeResolveView(model: .init())
+          .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+              Button("Dismiss") {
+                self.model.dismissCardButtonTapped()
+              }
+            }
+          }
       }
-//      .toolbar {
-//        ToolbarItem(placement: .cancellationAction) {
-//          Button("Dismiss") {
-//            self.model.dismissCardButtonTapped()
-//          }
-//        }
-//      }
-//    }
+    }
   }
 
   @ViewBuilder
