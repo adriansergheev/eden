@@ -46,11 +46,11 @@ public class ContentModel {
     destination = nil
   }
 
-  func onScreenTimeCompleted(card: Card?) {
-    destination = nil
-    if let card {
+  func onScreenTimeCompleted(card: Card) {
+    withAnimation {
       cards[id: card.id] = card
     }
+    destination = nil
   }
 }
 
@@ -101,6 +101,7 @@ public struct ContentView: View {
                   Divider()
                 }
               }
+              .transaction { $0.animation = nil }
             }
           }
           .padding(.vertical, 4)
@@ -198,6 +199,7 @@ struct CardView: View {
             .foregroundColor(card.isSolved ? .red.opacity(0.8) : .white)
             .padding(8)
             .frame(minWidth: 80)
+          //TODO: do something about white in dark mode
             .background(card.isSolved ? .white : .green)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(

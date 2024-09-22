@@ -27,7 +27,7 @@ extension URL {
 @Observable
 public final class ScreenTimeModel {
   @ObservationIgnored
-  var onScreenTimeCompletion: ((Card?) -> Void)
+  var onScreenTimeCompletion: ((Card) -> Void)
 
   var isFamilyActivityPickerPresented: Bool = false
   var startTime = Date()
@@ -47,7 +47,7 @@ public final class ScreenTimeModel {
 
   public init(
     card: Card,
-    onScreenTimeCompletion: @escaping ((Card?) -> Void) = unimplemented("onScreenTimeCompletion")
+    onScreenTimeCompletion: @escaping ((Card) -> Void) = unimplemented("onScreenTimeCompletion")
   ) {
     self.card = card
     self.onScreenTimeCompletion = onScreenTimeCompletion
@@ -84,12 +84,13 @@ public final class ScreenTimeModel {
         print("🔴")
       }
     } else {
-      isInProgress = true
       clear()
-      print("Cleared 👍")
+      card.isSolved = false
+      isInProgress = true
       try? await clock.sleep(for: .seconds(1))
       isInProgress = false
-      onScreenTimeCompletion(nil)
+      onScreenTimeCompletion(card)
+      print("Cleared 👍")
     }
   }
 
@@ -174,47 +175,53 @@ struct ScreenTimeView: View {
   }
 
   var body: some View {
-    VStack(spacing: 16) {
-      Text("Apps you select will not be available during the time period.")
-      DatePicker("Start time", selection: $model.startTime, displayedComponents: .hourAndMinute)
-      DatePicker("End time", selection: $model.endTime, displayedComponents: .hourAndMinute)
-      Button {
-        Task {
-          await model.resolveButtonTapped()
+    Group {
+      if model.isInProgress {
+        ProgressView()
+      } else {
+        VStack(spacing: 16) {
+          Text("Apps you select will not be available during the time period.")
+          DatePicker("Start time", selection: $model.startTime, displayedComponents: .hourAndMinute)
+          DatePicker("End time", selection: $model.endTime, displayedComponents: .hourAndMinute)
+          Button {
+            Task {
+              await model.resolveButtonTapped()
+            }
+          } label: {
+            HStack {
+              Text("Resolve")
+              if model.isResolvingOngoing {
+                ProgressView()
+              }
+            }
+          }
+          .disabled(model.isResolvedButtonDisabled)
+
+          Spacer()
+          //      Button {
+          //        model.clear()
+          //      } label: {
+          //        Text("DEBUG Clear")
+          //          .tint(.red)
+          //      }
         }
-      } label: {
-        HStack {
-          Text("Resolve")
-          if model.isResolvingOngoing {
-            ProgressView()
+        .padding()
+        .familyActivityPicker(
+          isPresented: self.$model.isFamilyActivityPickerPresented,
+          selection: $model.activitySelection
+        )
+        .toolbar {
+          ToolbarItem(placement: .confirmationAction) {
+            Button("Select") {
+              model.selectApplicationsTapped()
+            }
+            .tint(.green)
           }
         }
       }
-      .disabled(model.isResolvedButtonDisabled)
-
-      Spacer()
-//      Button {
-//        model.clear()
-//      } label: {
-//        Text("DEBUG Clear")
-//          .tint(.red)
-//      }
     }
-    .padding()
     .task {
       await model.task()
-    }
-    .familyActivityPicker(
-      isPresented: self.$model.isFamilyActivityPickerPresented,
-      selection: $model.activitySelection
-    )
-    .toolbar {
-      ToolbarItem(placement: .confirmationAction) {
-        Button("Select") {
-          model.selectApplicationsTapped()
-        }
-        .tint(.green)
-      }
     }
   }
 }
