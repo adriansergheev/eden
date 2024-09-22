@@ -3,13 +3,14 @@ import SwiftUI
 import ManagedSettings
 import FamilyControls
 import DeviceActivity
+import IssueReporting
 
 extension DeviceActivityName {
   static let daily = DeviceActivityName("eden.daily")
 }
 
 extension DeviceActivityEvent.Name {
-  static let tbd = Self("eden.tbd")
+  static let morning = Self("eden.morning")
 }
 
 extension ManagedSettingsStore.Name {
@@ -24,117 +25,208 @@ extension URL {
 
 @MainActor
 @Observable
-public final class ClaimModel {
+public final class ScreenTimeModel {
+  @ObservationIgnored
+  var onScreenTimeCompletion: ((Card?) -> Void)
+
+  var isFamilyActivityPickerPresented: Bool = false
+  var startTime = Date()
+  var endTime = Date()
+  var activitySelection = FamilyActivitySelection()
+  var card: Card
+  var isInProgress: Bool = false
+
   @ObservationIgnored
   let morningStore = ManagedSettingsStore(named: .morning)
-  @ObservationIgnored
-  var activitySelection = FamilyActivitySelection() 
-//  {
-//    didSet {
-//      morningStore.shield.applications = activitySelection.applicationTokens
-//    }
-//  }
   @ObservationIgnored
   @Dependency(\.dataManager) var dataManager
   @ObservationIgnored
   @Dependency(\.authorizationCenter) var authorizationCenter
+  @ObservationIgnored
+  @Dependency(\.continuousClock) var clock
 
-  public init() {}
+  public init(
+    card: Card,
+    onScreenTimeCompletion: @escaping ((Card?) -> Void) = unimplemented("onScreenTimeCompletion")
+  ) {
+    self.card = card
+    self.onScreenTimeCompletion = onScreenTimeCompletion
+    var startIntervalComponents = DateComponents()
+    startIntervalComponents.hour = 6
+    startIntervalComponents.minute = 0
+    let startInterval = Calendar.current.date(from: startIntervalComponents)!
 
-  func authorise() async {
-    do {
-      try await authorizationCenter.requestAuthorization()
-      print("✅")
-    } catch {
-      print("🔴")
+    var endIntervalComponents = DateComponents()
+    endIntervalComponents.hour = 12
+    endIntervalComponents.minute = 0
+    let endInterval = Calendar.current.date(from: endIntervalComponents)!
+
+    startTime = startInterval
+    endTime = endInterval
+  }
+
+  private func authorise() async throws {
+    try await authorizationCenter.requestAuthorization()
+  }
+
+  func task() async {
+    if !card.isSolved {
+      do {
+        try await authorise()
+        if let selection = loadSelection() {
+          self.activitySelection = selection
+        } else {
+          isFamilyActivityPickerPresented = true
+        }
+        print("✅")
+      } catch {
+        // TODO: auth could not be obtained
+        print("🔴")
+      }
+    } else {
+      isInProgress = true
+      clear()
+      print("Cleared 👍")
+      try? await clock.sleep(for: .seconds(1))
+      isInProgress = false
+      onScreenTimeCompletion(nil)
     }
   }
 
-  func monitor() {
-    //    let startDate = Date(timeIntervalSinceNow: 1.0) // padding added to avoid invalid DAM ranges < 15 mins.
-    //    let endDate = DateComponents(hour: 23, minute: 59)
-    //    let components: Set<Calendar.Component> = [.day, .month, .year, .hour, .minute, .second]
-    //    let calendar = Calendar.current
-    //    let intervalStart = calendar.dateComponents(components, from: startDate)
-    //
-    //    let schedule = DeviceActivitySchedule(
-    //      intervalStart: intervalStart,
-    //      intervalEnd: endDate,
-    //      repeats: false
-    //    )
+  var isResolvedButtonDisabled: Bool {
+    activitySelection.applicationTokens.isEmpty
+    && activitySelection.categoryTokens.isEmpty
+    && activitySelection.webDomainTokens.isEmpty
+  }
+
+  var isResolvingOngoing: Bool = false
+
+  private func loadSelection() -> FamilyActivitySelection? {
+    do {
+      return try JSONDecoder().decode(
+        FamilyActivitySelection.self,
+        from: try dataManager.load(from: .morning)
+      )
+    } catch {
+      return nil
+    }
+  }
+
+  private func monitor() throws {
+    let calendar = Calendar.current
+    // padding has to be added to avoid invalid Device Activity Monitor range < 15 minutes (from now)
+    let intervalStart = calendar.dateComponents([.hour, .minute], from: startTime)
+    let intervalEnd = calendar.dateComponents([.hour, .minute], from: endTime)
+
     let schedule = DeviceActivitySchedule(
-      intervalStart: DateComponents(hour: 8, minute: 0),
-      intervalEnd: DateComponents(hour: 12, minute: 59),
+      intervalStart: intervalStart,
+      intervalEnd: intervalEnd,
       repeats: true
     )
 
-    let timeLimitMinutes = 1
-
-    // this hits eventDidReachThreshold
+    // eventDidReachThreshold
     let event = DeviceActivityEvent(
       applications: activitySelection.applicationTokens,
       categories: activitySelection.categoryTokens,
       webDomains: activitySelection.webDomainTokens,
-      threshold: DateComponents(minute: timeLimitMinutes)
+      threshold: DateComponents(second: 1)
     )
 
     let center = DeviceActivityCenter()
     center.stopMonitoring()
-
-    do {
-      try center.startMonitoring(
-        .daily,
-        during: schedule,
-        events: [.tbd: event]
-      )
-      try dataManager.save(JSONEncoder().encode(activitySelection), to: .morning)
-      print("🍾 monitoring")
-    } catch let error {
-      print("🚗 \(error)")
-    }
+    try center.startMonitoring(
+      .daily,
+      during: schedule,
+      events: [.morning: event]
+    )
+    try dataManager.save(JSONEncoder().encode(activitySelection), to: .morning)
   }
 
   func clear() {
     morningStore.shield.applications = nil
   }
+
+  func selectApplicationsTapped() {
+    isFamilyActivityPickerPresented = true
+  }
+
+  func resolveButtonTapped() async {
+    defer { isResolvingOngoing = false }
+    isResolvingOngoing = true
+    do {
+      try monitor()
+      print("🍾 monitoring")
+      try await clock.sleep(for: .seconds(1))
+      card.isSolved = true
+      onScreenTimeCompletion(card)
+    } catch let error {
+      print("🚗 \(error)")
+    }
+  }
 }
 
-struct ScreenTimeResolveView: View {
-  @State var isPickerPresented = false
-  @State var model: ClaimModel
+struct ScreenTimeView: View {
+  @State var model: ScreenTimeModel
+  @State var isResolvedProgressViewShown: Bool = false
 
-  init(model: ClaimModel) {
+  init(model: ScreenTimeModel) {
     self.model = model
   }
 
   var body: some View {
     VStack(spacing: 16) {
+      Text("Apps you select will not be available during the time period.")
+      DatePicker("Start time", selection: $model.startTime, displayedComponents: .hourAndMinute)
+      DatePicker("End time", selection: $model.endTime, displayedComponents: .hourAndMinute)
       Button {
-        isPickerPresented = true
+        Task {
+          await model.resolveButtonTapped()
+        }
       } label: {
-        Text("Select Applications")
+        HStack {
+          Text("Resolve")
+          if model.isResolvingOngoing {
+            ProgressView()
+          }
+        }
       }
-      Button {
-        model.monitor()
-      } label: {
-        Text("Monitor Morning")
-      }
-      Button {
-        model.clear()
-      } label: {
-        Text("Clear")
-      }
+      .disabled(model.isResolvedButtonDisabled)
+
+      Spacer()
+//      Button {
+//        model.clear()
+//      } label: {
+//        Text("DEBUG Clear")
+//          .tint(.red)
+//      }
     }
+    .padding()
     .task {
-      await model.authorise()
+      await model.task()
     }
     .familyActivityPicker(
-      isPresented: self.$isPickerPresented,
+      isPresented: self.$model.isFamilyActivityPickerPresented,
       selection: $model.activitySelection
     )
+    .toolbar {
+      ToolbarItem(placement: .confirmationAction) {
+        Button("Select") {
+          model.selectApplicationsTapped()
+        }
+        .tint(.green)
+      }
+    }
   }
 }
 
 #Preview {
-  ScreenTimeResolveView(model: .init())
+  ScreenTimeView(
+    model: .init(
+      card: .init(
+        id: .init(),
+        title: "Title",
+        description: "Description"
+      )
+    )
+  )
 }

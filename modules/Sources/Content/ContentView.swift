@@ -1,10 +1,11 @@
 import SwiftUI
 import IssueReporting
 import SwiftUINavigation
+import IdentifiedCollections
 
 @MainActor
-public let cards: [Card] = [
-  .init(id: UUID(), title: "Claim your mornings", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
+public let cards: IdentifiedArrayOf<Card> = [
+  .init(id: UUID(), title: "Claim your mornings", description: "Think about the amount of time spent every morning on things which don't matter."),
   .init(id: UUID(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", isSolved: true),
   .init(id: UUID(), title: "Instagram", description: "Coming soon...", isSolved: true)
 ]
@@ -15,21 +16,21 @@ public class ContentModel {
 
   enum Destination: Identifiable {
     case detail(Card)
-    case resolve(Card)
+    case action(Card)
 
     var id: UUID {
       switch self {
       case let .detail(card):
         return card.id
-      case let .resolve(card):
+      case let .action(card):
         return card.id
       }
     }
   }
   var destination: Destination?
-  var cards: [Card]
+  var cards = IdentifiedArrayOf<Card>()
 
-  public init(cards: [Card]) {
+  public init(cards: IdentifiedArrayOf<Card>) {
     self.cards = cards
   }
 
@@ -37,12 +38,19 @@ public class ContentModel {
     destination = .detail(card)
   }
 
-  func resolveButtonTapped(_ card: Card) {
-    destination = .resolve(card)
+  func actionButtonTapped(_ card: Card) {
+    destination = .action(card)
   }
 
   func dismissCardButtonTapped() {
     destination = nil
+  }
+
+  func onScreenTimeCompleted(card: Card?) {
+    destination = nil
+    if let card {
+      cards[id: card.id] = card
+    }
   }
 }
 
@@ -69,14 +77,17 @@ public struct ContentView: View {
               ForEach(model.cards.filter { !$0.isSolved }) { card in
                 CardView(
                   card: card,
-                  primaryAction: { model.resolveButtonTapped(card) },
+                  primaryAction: { model.actionButtonTapped(card) },
                   secondaryAction: { model.whyShouldYouCareButtonTapped(card) }
                 )
               }
             }
             Section {
               ForEach(model.cards.filter { $0.isSolved }) { card in
-                CardView(card: card)
+                CardView(
+                  card: card,
+                  primaryAction: { model.actionButtonTapped(card) }
+                )
               }
             } header: {
               HStack {
@@ -118,8 +129,16 @@ public struct ContentView: View {
     switch destination {
     case .detail:
       ScreenTimeCardDetailView()
-    case .resolve:
-      ScreenTimeResolveView(model: .init())
+    case let .action(card):
+      ScreenTimeView(
+        model: .init(
+          card: card, onScreenTimeCompletion: { card in
+            model.onScreenTimeCompleted(card: card)
+          }
+        )
+      )
+      .presentationDetents([.medium])
+      .presentationDragIndicator(.hidden)
     }
   }
 }
@@ -128,8 +147,8 @@ struct CardView: View {
   @Environment(\.colorScheme) var colorScheme
   let card: Card
 
-  var primaryAction: (() -> Void)? = unimplemented("primaryAction")
-  var secondaryAction: (() -> Void)? = unimplemented("secondaryAction")
+  var primaryAction: (() -> Void) = unimplemented("primaryAction")
+  var secondaryAction: (() -> Void) = unimplemented("secondaryAction")
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -154,7 +173,7 @@ struct CardView: View {
 
       HStack {
         Button(action: {
-          secondaryAction?()
+          secondaryAction()
         }) {
           HStack {
             Image(systemName: "play.circle.fill")
@@ -169,17 +188,22 @@ struct CardView: View {
               .stroke(card.isSolved ? .gray : .green, lineWidth: 1)
           )
         }
+        .disabled(card.isSolved)
         Spacer()
         Button(action: {
-          primaryAction?()
+          primaryAction()
         }) {
-          Text("Resolve")
+          Text(!card.isSolved ? "Resolve" : "Clear")
             .font(.subheadline)
-            .foregroundColor(.white)
+            .foregroundColor(card.isSolved ? .red.opacity(0.8) : .white)
             .padding(8)
             .frame(minWidth: 80)
-            .background(card.isSolved ? .gray : .green)
+            .background(card.isSolved ? .white : .green)
             .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+              RoundedRectangle(cornerRadius: 8)
+                .stroke(card.isSolved ? Color.red.opacity(0.8) : .clear, lineWidth: 1)
+            )
         }
       }
       .frame(maxWidth: .infinity)
@@ -190,12 +214,9 @@ struct CardView: View {
     .shadow(radius: 5)
     .padding(.horizontal, 8)
     .padding(.vertical, 4)
-    .disabled(card.isSolved)
   }
 }
 
 #Preview {
-  ContentView(
-    model: .init(cards: cards)
-  )
+  ContentView(model: .init( cards: cards))
 }
