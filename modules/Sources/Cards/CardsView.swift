@@ -1,19 +1,19 @@
 import SwiftUI
 import IssueReporting
 import SwiftUINavigation
+import Dependencies
+import StorageClient
 import IdentifiedCollections
 
-@MainActor
-public let cards: IdentifiedArrayOf<Card> = [
-  .init(id: UUID(), title: "Claim your mornings", description: "Think about the amount of time spent every morning on things which don't matter."),
-  .init(id: UUID(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", isSolved: true),
-  .init(id: UUID(), title: "Instagram", description: "Coming soon...", isSolved: true)
-]
+extension URL {
+  fileprivate static let cardsStatus = FileManager.default.containerURL(
+    forSecurityApplicationGroupIdentifier: "group.eden.documents"
+  )!.appendingPathComponent("cardsStatus").appendingPathExtension("json")
+}
 
 @MainActor
 @Observable
 public class CardsModel {
-
   enum Destination: Identifiable {
     case detail(Card)
     case action(Card)
@@ -27,11 +27,49 @@ public class CardsModel {
       }
     }
   }
+
   var destination: Destination?
   var cards = IdentifiedArrayOf<Card>()
+  @ObservationIgnored
+  var saveTask: Task<Void, Error>?
 
-  public init(cards: IdentifiedArrayOf<Card>) {
-    self.cards = cards
+  @ObservationIgnored
+  @Dependency(\.storageClient) var storageClient
+  @ObservationIgnored
+  @Dependency(\.continuousClock) var clock
+  @ObservationIgnored
+  @Dependency(\.uuid) var uuid
+
+  public init() {
+    self.cards = .init(uniqueElements: [
+      .init(id: uuid(), title: "Claim your mornings", description: "Think about the amount of time spent every morning on things which don't matter."),
+      .init(id: uuid(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", isSolved: true),
+      .init(id: uuid(), title: "Instagram", description: "Coming soon...", isSolved: true)
+    ])
+    do {
+      // previous cards status is present
+      let cardsStatus = try JSONDecoder().decode(
+        [UUID: Bool].self,
+        from: try storageClient.load(from: .cardsStatus)
+      )
+      for card in cardsStatus {
+        cards[id: card.key]?.isSolved = card.value
+      }
+    } catch {
+      // no previous cards data
+    }
+  }
+
+  private func save() {
+    saveTask?.cancel()
+    saveTask = nil
+    saveTask = Task {
+      try await clock.sleep(for: .milliseconds(300))
+      let cardsStatus: [UUID: Bool] = Dictionary(
+        uniqueKeysWithValues: cards.map { ($0.id, $0.isSolved)}
+      )
+      try self.storageClient.save(try JSONEncoder().encode(cardsStatus), to: .cardsStatus)
+    }
   }
 
   func whyShouldYouCareButtonTapped(_ card: Card) {
@@ -50,6 +88,7 @@ public class CardsModel {
     withAnimation {
       cards[id: card.id] = card
     }
+    save()
     destination = nil
   }
 }
@@ -220,5 +259,5 @@ struct CardView: View {
 }
 
 #Preview {
-  CardsView(model: .init( cards: cards))
+  CardsView(model: .init())
 }

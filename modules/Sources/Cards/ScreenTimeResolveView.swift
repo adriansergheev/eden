@@ -21,7 +21,7 @@ extension ManagedSettingsStore.Name {
 extension URL {
   fileprivate static let morning = FileManager.default.containerURL(
     forSecurityApplicationGroupIdentifier: "group.eden.documents"
-  )!.appendingPathComponent("eden-morning.json")
+  )!.appendingPathComponent("eden-morning").appendingPathExtension("json")
 }
 
 @MainActor
