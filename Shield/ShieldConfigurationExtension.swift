@@ -20,17 +20,17 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
     )
     return configuration
   }
-  
+
   override func configuration(shielding application: Application, in category: ActivityCategory) -> ShieldConfiguration {
     // Customize the shield as needed for applications shielded because of their category.
     ShieldConfiguration()
   }
-  
+
   override func configuration(shielding webDomain: WebDomain) -> ShieldConfiguration {
     // Customize the shield as needed for web domains.
     ShieldConfiguration()
   }
-  
+
   override func configuration(shielding webDomain: WebDomain, in category: ActivityCategory) -> ShieldConfiguration {
     // Customize the shield as needed for web domains shielded because of their category.
     ShieldConfiguration()

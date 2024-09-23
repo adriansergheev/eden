@@ -199,7 +199,7 @@ struct CardView: View {
             .foregroundColor(card.isSolved ? .red.opacity(0.8) : .white)
             .padding(8)
             .frame(minWidth: 80)
-          //TODO: do something about white in dark mode
+          // TODO: do something about white in dark mode
             .background(card.isSolved ? .white : .green)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(

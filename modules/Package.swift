@@ -8,7 +8,7 @@ let package = Package(
   platforms: [.iOS(.v17)],
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
-    .library(name: "Content", targets: ["Content"]),
+    .library(name: "Content", targets: ["Content"])
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.0.6"),
@@ -27,6 +27,6 @@ let package = Package(
         .product(name: "IdentifiedCollections", package: "swift-identified-collections")
       ]
     ),
-    .testTarget(name: "ContentTests", dependencies: ["Content"]),
+    .testTarget(name: "ContentTests", dependencies: ["Content"])
   ]
 )

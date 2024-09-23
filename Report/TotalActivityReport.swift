@@ -1,7 +1,7 @@
 import DeviceActivity
 import SwiftUI
 
-//TODO: Figure out if needed for prototype.
+// TODO: Figure out if needed for prototype.
 
 extension DeviceActivityReport.Context {
   // If your app initializes a DeviceActivityReport with this context, then the system will use
@@ -57,4 +57,3 @@ struct TotalActivityReport: DeviceActivityReportScene {
       }
   }
 }
-

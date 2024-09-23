@@ -1,11 +1,10 @@
 import SwiftUI
 import DeviceActivity
 
-//TODO: DeviceActivityReport not needed for mvp, provide some text instead.
-//extension DeviceActivityReport.Context {
+// TODO: DeviceActivityReport not needed for mvp, provide some text instead.
+// extension DeviceActivityReport.Context {
 //  static let totalActivity = Self.init("Total Activity")
-//}
-
+// }
 
 struct ScreenTimeCardDetailView: View {
 //  @State private var context: DeviceActivityReport.Context = .totalActivity
