@@ -18,10 +18,8 @@ extension ManagedSettingsStore.Name {
   static let morning = Self("eden.morning")
 }
 
-extension URL {
-  fileprivate static let morning = FileManager.default.containerURL(
-    forSecurityApplicationGroupIdentifier: "group.eden.documents"
-  )!.appendingPathComponent("eden-morning").appendingPathExtension("json")
+extension String {
+  fileprivate static let morningKey = "eden-morning"
 }
 
 @MainActor
@@ -107,7 +105,7 @@ public final class ScreenTimeModel {
     do {
       return try JSONDecoder().decode(
         FamilyActivitySelection.self,
-        from: try storageClient.load(from: .morning)
+        from: try storageClient.load(from: .morningKey)
       )
     } catch {
       return nil
@@ -141,7 +139,7 @@ public final class ScreenTimeModel {
       during: schedule,
       events: [.morning: event]
     )
-    try storageClient.save(JSONEncoder().encode(activitySelection), to: .morning)
+    try storageClient.save(JSONEncoder().encode(activitySelection), to: .morningKey)
   }
 
   func clear() {

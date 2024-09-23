@@ -5,10 +5,8 @@ import Dependencies
 import StorageClient
 import IdentifiedCollections
 
-extension URL {
-  fileprivate static let cardsStatus = FileManager.default.containerURL(
-    forSecurityApplicationGroupIdentifier: "group.eden.documents"
-  )!.appendingPathComponent("cardsStatus").appendingPathExtension("json")
+extension String {
+  fileprivate static let cardsStatusKey = "cardsStatus"
 }
 
 @MainActor
@@ -50,7 +48,7 @@ public class CardsModel {
       // previous cards status is present
       let cardsStatus = try JSONDecoder().decode(
         [UUID: Bool].self,
-        from: try storageClient.load(from: .cardsStatus)
+        from: try storageClient.load(from: .cardsStatusKey)
       )
       for card in cardsStatus {
         cards[id: card.key]?.isSolved = card.value
@@ -68,7 +66,7 @@ public class CardsModel {
       let cardsStatus: [UUID: Bool] = Dictionary(
         uniqueKeysWithValues: cards.map { ($0.id, $0.isSolved)}
       )
-      try self.storageClient.save(try JSONEncoder().encode(cardsStatus), to: .cardsStatus)
+      try self.storageClient.save(try JSONEncoder().encode(cardsStatus), to: .cardsStatusKey)
     }
   }
 

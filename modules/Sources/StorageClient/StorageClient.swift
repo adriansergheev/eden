@@ -4,8 +4,8 @@ import Foundation
 
 @DependencyClient
 public struct StorageClient: Sendable {
-  public var load: @Sendable (_ from: URL) throws -> Data
-  public var save: @Sendable (Data, _ to: URL) throws -> Void
+  public var load: @Sendable (_ from: String) throws -> Data
+  public var save: @Sendable (Data, _ to: String) throws -> Void
 }
 
 extension DependencyValues {
