@@ -8,7 +8,7 @@ let package = Package(
   platforms: [.iOS(.v17)],
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
-    .library(name: "Content", targets: ["Content"])
+    .library(name: "Cards", targets: ["Cards"])
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.0.6"),
@@ -19,7 +19,7 @@ let package = Package(
     // Targets are the basic building blocks of a package, defining a module or a test suite.
     // Targets can depend on other targets in this package and products from dependencies.
     .target(
-      name: "Content",
+      name: "Cards",
       dependencies: [
         .product(name: "SwiftUINavigation", package: "swift-navigation"),
         .product(name: "Dependencies", package: "swift-dependencies"),
@@ -27,6 +27,6 @@ let package = Package(
         .product(name: "IdentifiedCollections", package: "swift-identified-collections")
       ]
     ),
-    .testTarget(name: "ContentTests", dependencies: ["Content"])
+    .testTarget(name: "CardsTests", dependencies: ["Cards"])
   ]
 )

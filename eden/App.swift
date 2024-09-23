@@ -1,11 +1,11 @@
 import SwiftUI
-import Content
+import Cards
 
 @main
 struct EdenApp: App {
   var body: some Scene {
     WindowGroup {
-      ContentView(
+      CardsView(
         model: .init(cards: cards)
       )
     }

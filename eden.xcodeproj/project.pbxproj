@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		042856A72C7384FE00915D9B /* Content in Frameworks */ = {isa = PBXBuildFile; productRef = 042856A62C7384FE00915D9B /* Content */; };
 		0463F1862C7F7543006BB463 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0463F1852C7F7543006BB463 /* ManagedSettings.framework */; };
 		0463F1882C7F7543006BB463 /* ManagedSettingsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0463F1872C7F7543006BB463 /* ManagedSettingsUI.framework */; };
 		0463F18B2C7F7543006BB463 /* ShieldConfigurationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0463F18A2C7F7543006BB463 /* ShieldConfigurationExtension.swift */; };
@@ -15,6 +14,7 @@
 		0463F1992C7F757B006BB463 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0463F1852C7F7543006BB463 /* ManagedSettings.framework */; };
 		0463F19C2C7F757B006BB463 /* ShieldActionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0463F19B2C7F757B006BB463 /* ShieldActionExtension.swift */; };
 		0463F1A12C7F757B006BB463 /* ShieldAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0463F1982C7F757B006BB463 /* ShieldAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		04924BC92CA1957000220203 /* Cards in Frameworks */ = {isa = PBXBuildFile; productRef = 04924BC82CA1957000220203 /* Cards */; };
 		04A146382C7E7A25004AA0C5 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04A146372C7E7A25004AA0C5 /* DeviceActivity.framework */; };
 		04A1463B2C7E7A25004AA0C5 /* DeviceActivityMonitorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A1463A2C7E7A25004AA0C5 /* DeviceActivityMonitorExtension.swift */; };
 		04A146402C7E7A25004AA0C5 /* Activity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 04A146362C7E7A25004AA0C5 /* Activity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -150,7 +150,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				042856A72C7384FE00915D9B /* Content in Frameworks */,
+				04924BC92CA1957000220203 /* Cards in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +347,7 @@
 			name = eden;
 			packageProductDependencies = (
 				042856A62C7384FE00915D9B /* Content */,
+				04924BC82CA1957000220203 /* Cards */,
 			);
 			productName = eden;
 			productReference = 04D88C822C738407003D580B /* eden.app */;
@@ -965,6 +966,10 @@
 		042856A62C7384FE00915D9B /* Content */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Content;
+		};
+		04924BC82CA1957000220203 /* Cards */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Cards;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

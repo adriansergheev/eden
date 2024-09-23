@@ -12,7 +12,7 @@ public let cards: IdentifiedArrayOf<Card> = [
 
 @MainActor
 @Observable
-public class ContentModel {
+public class CardsModel {
 
   enum Destination: Identifiable {
     case detail(Card)
@@ -55,10 +55,10 @@ public class ContentModel {
 }
 
 @MainActor
-public struct ContentView: View {
-  @State var model: ContentModel
+public struct CardsView: View {
+  @State var model: CardsModel
 
-  public init(model: ContentModel) {
+  public init(model: CardsModel) {
     self.model = model
   }
 
@@ -126,7 +126,7 @@ public struct ContentView: View {
   }
 
   @ViewBuilder
-  func makeDestination(_ destination: ContentModel.Destination) -> some View {
+  func makeDestination(_ destination: CardsModel.Destination) -> some View {
     switch destination {
     case .detail:
       ScreenTimeCardDetailView()
@@ -220,5 +220,5 @@ struct CardView: View {
 }
 
 #Preview {
-  ContentView(model: .init( cards: cards))
+  CardsView(model: .init( cards: cards))
 }
