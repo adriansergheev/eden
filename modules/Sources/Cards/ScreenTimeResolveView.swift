@@ -4,6 +4,7 @@ import ManagedSettings
 import FamilyControls
 import DeviceActivity
 import IssueReporting
+import DataManager
 
 extension DeviceActivityName {
   static let daily = DeviceActivityName("eden.daily")
