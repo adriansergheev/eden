@@ -3,24 +3,24 @@ import DependenciesMacros
 import Foundation
 
 @DependencyClient
-public struct DataManager: Sendable {
+public struct StorageClient: Sendable {
   public var load: @Sendable (_ from: URL) throws -> Data
   public var save: @Sendable (Data, _ to: URL) throws -> Void
 }
 
 extension DependencyValues {
-  public var dataManager: DataManager {
-    get { self[DataManager.self] }
-    set { self[DataManager.self] = newValue }
+  public var storageClient: StorageClient {
+    get { self[StorageClient.self] }
+    set { self[StorageClient.self] = newValue }
   }
 }
 
-extension DataManager: TestDependencyKey {
-  public static var testValue: DataManager { Self.mock() }
+extension StorageClient: TestDependencyKey {
+  public static var testValue: StorageClient { Self.mock() }
 
-  public static func mock(initialData: Data? = nil) -> DataManager {
+  public static func mock(initialData: Data? = nil) -> StorageClient {
     let data = LockIsolated(initialData)
-    return DataManager(
+    return StorageClient(
       load: { _ in
         guard let data = data.value
         else {
@@ -33,7 +33,7 @@ extension DataManager: TestDependencyKey {
     )
   }
 
-  public static let failToWrite = DataManager(
+  public static let failToWrite = StorageClient(
     load: { url in Data() },
     save: { data, url in
       struct SaveError: Error {}
@@ -41,7 +41,7 @@ extension DataManager: TestDependencyKey {
     }
   )
 
-  public static let failToLoad = DataManager(
+  public static let failToLoad = StorageClient(
     load: { _ in
       struct LoadError: Error {}
       throw LoadError()

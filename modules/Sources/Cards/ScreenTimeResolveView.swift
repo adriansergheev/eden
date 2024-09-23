@@ -4,7 +4,7 @@ import ManagedSettings
 import FamilyControls
 import DeviceActivity
 import IssueReporting
-import DataManager
+import StorageClient
 
 extension DeviceActivityName {
   static let daily = DeviceActivityName("eden.daily")
@@ -40,7 +40,7 @@ public final class ScreenTimeModel {
   @ObservationIgnored
   let morningStore = ManagedSettingsStore(named: .morning)
   @ObservationIgnored
-  @Dependency(\.dataManager) var dataManager
+  @Dependency(\.storageClient) var storageClient
   @ObservationIgnored
   @Dependency(\.authorizationCenter) var authorizationCenter
   @ObservationIgnored
@@ -107,7 +107,7 @@ public final class ScreenTimeModel {
     do {
       return try JSONDecoder().decode(
         FamilyActivitySelection.self,
-        from: try dataManager.load(from: .morning)
+        from: try storageClient.load(from: .morning)
       )
     } catch {
       return nil
@@ -141,7 +141,7 @@ public final class ScreenTimeModel {
       during: schedule,
       events: [.morning: event]
     )
-    try dataManager.save(JSONEncoder().encode(activitySelection), to: .morning)
+    try storageClient.save(JSONEncoder().encode(activitySelection), to: .morning)
   }
 
   func clear() {

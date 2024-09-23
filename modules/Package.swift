@@ -9,8 +9,8 @@ let package = Package(
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
     .library(name: "Cards", targets: ["Cards"]),
-    .library(name: "DataManager", targets: ["DataManager"]),
-    .library(name: "DataManagerLive", targets: ["DataManagerLive"])
+    .library(name: "StorageClient", targets: ["StorageClient"]),
+    .library(name: "StorageClientLive", targets: ["StorageClientLive"])
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.0.6"),
@@ -23,20 +23,20 @@ let package = Package(
     .target(
       name: "Cards",
       dependencies: [
-        "DataManager",
+        "StorageClient",
         .product(name: "SwiftUINavigation", package: "swift-navigation"),
         .product(name: "IdentifiedCollections", package: "swift-identified-collections")
       ]
     ),
     .target(
-      name: "DataManager", dependencies: [
+      name: "StorageClient", dependencies: [
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "DependenciesMacros", package: "swift-dependencies"),
       ]
     ),
     .target(
-      name: "DataManagerLive", dependencies: [
-        "DataManager",
+      name: "StorageClientLive", dependencies: [
+        "StorageClient",
         .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
