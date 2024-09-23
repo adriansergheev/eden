@@ -28,6 +28,29 @@ public class CardsModel {
 
   var destination: Destination?
   var cards = IdentifiedArrayOf<Card>()
+
+  var unSolvedCards: IdentifiedArrayOf<Card> {
+    cards.filter {
+      switch $0.status {
+      case let .solved(isSolved):
+        return !isSolved
+      case .upcoming:
+        return false
+      }
+    }
+  }
+
+  var upcomingCards: IdentifiedArrayOf<Card> {
+    cards.filter {
+      switch $0.status {
+      case .solved:
+        return false
+      case .upcoming:
+        return true
+      }
+    }
+  }
+
   @ObservationIgnored
   var saveTask: Task<Void, Error>?
 
@@ -40,18 +63,20 @@ public class CardsModel {
 
   public init() {
     self.cards = .init(uniqueElements: [
-      .init(id: uuid(), title: "Claim your mornings", description: "Think about the amount of time spent every morning on things which don't matter."),
-      .init(id: uuid(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", isSolved: true),
-      .init(id: uuid(), title: "Instagram", description: "Coming soon...", isSolved: true)
+      .init(id: uuid(), title: "Claim your mornings", description: "Think about the amount of time spent every morning on things which don't matter.", status: .solved(false)),
+      .init(id: uuid(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", status: .solved(true)),
+      .init(id: uuid(), title: "Instagram", description: "Coming soon...", status: .upcoming)
     ])
     do {
       // previous cards status is present
       let cardsStatus = try JSONDecoder().decode(
-        [UUID: Bool].self,
+        [UUID: Bool?].self,
         from: try storageClient.load(from: .cardsStatusKey)
       )
       for card in cardsStatus {
-        cards[id: card.key]?.isSolved = card.value
+        if let isSolved = card.value {
+          cards[id: card.key]?.status = .solved(isSolved)
+        }
       }
     } catch {
       // no previous cards data
@@ -63,8 +88,13 @@ public class CardsModel {
     saveTask = nil
     saveTask = Task {
       try await clock.sleep(for: .milliseconds(300))
-      let cardsStatus: [UUID: Bool] = Dictionary(
-        uniqueKeysWithValues: cards.map { ($0.id, $0.isSolved)}
+      let cardsStatus: [UUID: Bool?] = Dictionary(
+        uniqueKeysWithValues: cards.map { card in
+          if case let .solved(isSolved) = card.status {
+            return (card.id, isSolved)
+          }
+          return (card.id, nil)
+        }
       )
       try self.storageClient.save(try JSONEncoder().encode(cardsStatus), to: .cardsStatusKey)
     }
@@ -109,41 +139,12 @@ public struct CardsView: View {
         }
         .padding(.horizontal)
         ScrollView {
-          VStack {
-            Section {
-              ForEach(model.cards.filter { !$0.isSolved }) { card in
-                CardView(
-                  card: card,
-                  primaryAction: { model.actionButtonTapped(card) },
-                  secondaryAction: { model.whyShouldYouCareButtonTapped(card) }
-                )
-              }
-            }
-            Section {
-              ForEach(model.cards.filter { $0.isSolved }) { card in
-                CardView(
-                  card: card,
-                  primaryAction: { model.actionButtonTapped(card) }
-                )
-              }
-            } header: {
-              HStack {
-                VStack {
-                  Divider()
-                }
-                Text("Resolved")
-                  .fontWeight(.thin)
-                  .font(.subheadline)
-                VStack {
-                  Divider()
-                }
-              }
-              .transaction { $0.animation = nil }
-            }
-          }
-          .padding(.vertical, 4)
-          .padding(.horizontal, 8)
+          makeSection(nil, cards: model.unSolvedCards)
+          makeSection("Resolved", cards: model.cards.filter(\.isSolved))
+          makeSection("Upcoming", cards: model.upcomingCards)
         }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
       }
       .navigationTitle("Your iPhone")
       .background(Color(UIColor.systemGroupedBackground))
@@ -158,6 +159,46 @@ public struct CardsView: View {
               }
             }
           }
+      }
+    }
+  }
+
+  @ViewBuilder
+  func makeSection(_ title: String?, cards: IdentifiedArrayOf<Card>) -> some View {
+    if let title {
+      Section {
+        ForEach(cards) { card in
+          CardView(
+            card: card,
+            primaryAction: { model.actionButtonTapped(card) }
+          )
+        }
+      } header: {
+        if !cards.isEmpty {
+          HStack {
+            VStack {
+              Divider()
+            }
+            Text(title)
+              .fontWeight(.thin)
+              .font(.subheadline)
+            VStack {
+              Divider()
+            }
+          }
+          .transaction { $0.animation = nil }
+        }
+      }
+
+    } else {
+      Section {
+        ForEach(cards) { card in
+          CardView(
+            card: card,
+            primaryAction: { model.actionButtonTapped(card) },
+            secondaryAction: { model.whyShouldYouCareButtonTapped(card) }
+          )
+        }
       }
     }
   }
@@ -188,6 +229,28 @@ struct CardView: View {
   var primaryAction: (() -> Void) = unimplemented("primaryAction")
   var secondaryAction: (() -> Void) = unimplemented("secondaryAction")
 
+  func accentColor(for card: Card) -> Color {
+    switch card.status {
+    case let .solved(isSolved):
+      return isSolved ? .gray : .green
+    case .upcoming:
+      return .gray
+    }
+  }
+
+  func primaryActionBackgroundColor(for card: Card) -> Color {
+    switch card.status {
+    case let .solved(isSolved):
+      if isSolved {
+        return colorScheme == .light ? .white : .clear
+      } else {
+        return .green.opacity(0.8)
+      }
+    case .upcoming:
+      return .gray.opacity(0.5)
+    }
+  }
+
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
@@ -195,12 +258,6 @@ struct CardView: View {
           .font(.headline)
           .foregroundColor(.primary)
         Spacer()
-        //        Button(action: {
-        //          // Close action
-        //        }) {
-        //          Image(systemName: "xmark")
-        //            .foregroundColor(.gray)
-        //        }
       }
       .padding(.bottom, 2)
 
@@ -215,18 +272,18 @@ struct CardView: View {
         }) {
           HStack {
             Image(systemName: "play.circle.fill")
-              .foregroundColor(card.isSolved ? .gray : .green)
+              .foregroundColor(accentColor(for: card))
             Text("Why you should care")
               .font(.subheadline)
-              .foregroundColor(card.isSolved ? .gray : .green)
+              .foregroundColor(accentColor(for: card))
           }
           .padding(8)
           .overlay(
             RoundedRectangle(cornerRadius: 8)
-              .stroke(card.isSolved ? .gray : .green, lineWidth: 1)
+              .stroke(accentColor(for: card), lineWidth: 1)
           )
         }
-        .disabled(card.isSolved)
+        .disabled(card.status.solved == nil || card.status.solved == false)
         Spacer()
         Button(action: {
           primaryAction()
@@ -236,8 +293,7 @@ struct CardView: View {
             .foregroundColor(card.isSolved ? .red.opacity(0.8) : .white)
             .padding(8)
             .frame(minWidth: 80)
-          // TODO: do something about white in dark mode
-            .background(card.isSolved ? .white : .green)
+            .background(primaryActionBackgroundColor(for: card))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
               RoundedRectangle(cornerRadius: 8)

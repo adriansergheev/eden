@@ -84,7 +84,7 @@ public final class ScreenTimeModel {
       }
     } else {
       clear()
-      card.isSolved = false
+      card.status = .solved(false)
       isInProgress = true
       try? await clock.sleep(for: .seconds(1))
       isInProgress = false
@@ -157,7 +157,7 @@ public final class ScreenTimeModel {
       try monitor()
       print("🍾 monitoring")
       try await clock.sleep(for: .seconds(1))
-      card.isSolved = true
+      card.status = .solved(true)
       onScreenTimeCompletion(card)
     } catch let error {
       print("🚗 \(error)")
@@ -231,7 +231,8 @@ struct ScreenTimeView: View {
       card: .init(
         id: .init(),
         title: "Title",
-        description: "Description"
+        description: "Description",
+        status: .upcoming
       )
     )
   )
