@@ -10,12 +10,12 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
     // Customize the shield as needed for applications.
     let configuration = ShieldConfiguration(
       backgroundBlurStyle: .dark,
-      backgroundColor: .green,
+      backgroundColor: .black,
       icon: nil,
-      title: .init(text: "This is my title", color: .gray),
-      subtitle: .init(text: "This is my subtitle", color: .cyan),
+      title: .init(text: "Time to unwind.", color: .white),
+      subtitle: nil,
       primaryButtonLabel: nil,
-      primaryButtonBackgroundColor: .blue,
+      primaryButtonBackgroundColor: .green,
       secondaryButtonLabel: nil
     )
     return configuration

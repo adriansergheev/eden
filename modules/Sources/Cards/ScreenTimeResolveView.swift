@@ -11,15 +11,15 @@ extension DeviceActivityName {
 }
 
 extension DeviceActivityEvent.Name {
-  static let morning = Self("eden.morning")
+  static let eveningKey = Self(String.eveningKey)
 }
 
 extension ManagedSettingsStore.Name {
-  static let morning = Self("eden.morning")
+  static let evening = Self(String.eveningKey)
 }
 
 extension String {
-  fileprivate static let morningKey = "eden-morning"
+  fileprivate static let eveningKey = "eden-evening"
 }
 
 @MainActor
@@ -36,7 +36,7 @@ public final class ScreenTimeModel {
   var isInProgress: Bool = false
 
   @ObservationIgnored
-  let morningStore = ManagedSettingsStore(named: .morning)
+  let store = ManagedSettingsStore(named: .evening)
   @ObservationIgnored
   @Dependency(\.storageClient) var storageClient
   @ObservationIgnored
@@ -51,12 +51,12 @@ public final class ScreenTimeModel {
     self.card = card
     self.onScreenTimeCompletion = onScreenTimeCompletion
     var startIntervalComponents = DateComponents()
-    startIntervalComponents.hour = 6
+    startIntervalComponents.hour = 18
     startIntervalComponents.minute = 0
     let startInterval = Calendar.current.date(from: startIntervalComponents)!
 
     var endIntervalComponents = DateComponents()
-    endIntervalComponents.hour = 12
+    endIntervalComponents.hour = 22
     endIntervalComponents.minute = 0
     let endInterval = Calendar.current.date(from: endIntervalComponents)!
 
@@ -105,7 +105,7 @@ public final class ScreenTimeModel {
     do {
       return try JSONDecoder().decode(
         FamilyActivitySelection.self,
-        from: try storageClient.load(from: .morningKey)
+        from: try storageClient.load(from: .eveningKey)
       )
     } catch {
       return nil
@@ -137,13 +137,14 @@ public final class ScreenTimeModel {
     try center.startMonitoring(
       .daily,
       during: schedule,
-      events: [.morning: event]
+      events: [.eveningKey: event]
     )
-    try storageClient.save(JSONEncoder().encode(activitySelection), to: .morningKey)
+    try storageClient.save(JSONEncoder().encode(activitySelection), to: .eveningKey)
   }
 
   func clear() {
-    morningStore.shield.applications = nil
+    store.clearAllSettings()
+    store.shield.applications = nil
   }
 
   func selectApplicationsTapped() {

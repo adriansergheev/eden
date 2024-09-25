@@ -63,7 +63,7 @@ public class CardsModel {
 
   public init() {
     self.cards = .init(uniqueElements: [
-      .init(id: uuid(), title: "Claim your mornings", description: "Think about the amount of time spent every morning on things which don't matter.", status: .solved(false)),
+      .init(id: uuid(), title: "Claim your evenings", description: "You deserve to unwind", status: .solved(false)),
       .init(id: uuid(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", status: .solved(true)),
       .init(id: uuid(), title: "Instagram", description: "Coming soon...", status: .upcoming)
     ])

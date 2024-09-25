@@ -3,36 +3,39 @@ import Foundation
 import ManagedSettings
 import FamilyControls
 
+extension String {
+  fileprivate static let eveningKey = "eden-evening"
+}
+
 extension ManagedSettingsStore.Name {
-  static let morning = Self("eden.morning")
+  static let store = Self(.eveningKey)
 }
 
 extension URL {
-  fileprivate static let morning = FileManager.default.containerURL(
+  fileprivate static let base = FileManager.default.containerURL(
     forSecurityApplicationGroupIdentifier: "group.eden.documents"
-  )!.appendingPathComponent("eden-morning.json")
+  )!
 }
 
 // Optionally override any of the functions below.
 // Make sure that your class name matches the NSExtensionPrincipalClass in your Info.plist.
 class DeviceActivityMonitorExtension: DeviceActivityMonitor {
-
-  let morningStore = ManagedSettingsStore(named: .morning)
+  let store = ManagedSettingsStore(named: .store)
 
   override func intervalDidStart(for activity: DeviceActivityName) {
     super.intervalDidStart(for: activity)
     do {
       let applications = try JSONDecoder().decode(
         FamilyActivitySelection.self,
-        from: try Data(contentsOf: .morning)
+        from: try Data(contentsOf: URL.base.appendingPathComponent(.eveningKey).appendingPathExtension("json"))
       ).applicationTokens
-      morningStore.shield.applications = applications
+      store.shield.applications = applications
     } catch {}
   }
 
   override func intervalDidEnd(for activity: DeviceActivityName) {
     super.intervalDidEnd(for: activity)
-    morningStore.shield.applications = nil
+    store.shield.applications = nil
   }
 
   override func eventDidReachThreshold(

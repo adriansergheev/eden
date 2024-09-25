@@ -26,7 +26,7 @@ struct ScreenTimeCardDetailView: View {
 //        .border(.red)
 //      }
       Text(
-        "Think about the amount of time spent every morning on things which don't matter."
+        "Think about the amount of time spent every evening on things which don't matter."
       )
     }
   }
