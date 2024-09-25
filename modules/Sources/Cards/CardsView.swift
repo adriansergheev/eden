@@ -283,7 +283,7 @@ struct CardView: View {
               .stroke(accentColor(for: card), lineWidth: 1)
           )
         }
-        .disabled(card.status.solved == nil || card.status.solved == false)
+        .disabled(!(card.status.solved == false))
         Spacer()
         Button(action: {
           primaryAction()
@@ -301,6 +301,7 @@ struct CardView: View {
             )
         }
       }
+      .disabled(card.status.upcoming != nil)
       .frame(maxWidth: .infinity)
     }
     .padding()
