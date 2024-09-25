@@ -8,9 +8,16 @@ public struct Card: Equatable, Identifiable {
     case solved(Bool)
     case upcoming
   }
+
+  public enum Target: Equatable {
+    case screenTime
+    case api
+  }
+
   public let id: UUID
   public let title: String
   public let description: String
+  public let target: Target
   public var status: Status
 }
 

@@ -233,6 +233,7 @@ struct ScreenTimeView: View {
         id: .init(),
         title: "Title",
         description: "Description",
+        target: .screenTime,
         status: .upcoming
       )
     )

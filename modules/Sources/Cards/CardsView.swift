@@ -63,9 +63,9 @@ public class CardsModel {
 
   public init() {
     self.cards = .init(uniqueElements: [
-      .init(id: uuid(), title: "Claim your evenings", description: "You deserve to unwind", status: .solved(false)),
-      .init(id: uuid(), title: "Take control of Youtube", description: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", status: .solved(true)),
-      .init(id: uuid(), title: "Instagram", description: "Coming soon...", status: .upcoming)
+      .init(id: uuid(), title: "Claim your evenings", description: "You deserve to unwind.", target: .screenTime, status: .solved(false)),
+      .init(id: uuid(), title: "Take control of Youtube", description: "Think about the amount of time spent on things which don't matter.", target: .api, status: .solved(false)),
+      .init(id: uuid(), title: "Instagram", description: "Coming soon...", target: .api, status: .upcoming)
     ])
     do {
       // previous cards status is present
@@ -206,18 +206,23 @@ public struct CardsView: View {
   @ViewBuilder
   func makeDestination(_ destination: CardsModel.Destination) -> some View {
     switch destination {
-    case .detail:
-      ScreenTimeCardDetailView()
+    case let .detail(card):
+      CardDetailView(card: card)
     case let .action(card):
-      ScreenTimeView(
-        model: .init(
-          card: card, onScreenTimeCompletion: { card in
-            model.onScreenTimeCompleted(card: card)
-          }
+      switch card.target {
+      case .screenTime:
+        ScreenTimeView(
+          model: .init(
+            card: card, onScreenTimeCompletion: { card in
+              model.onScreenTimeCompleted(card: card)
+            }
+          )
         )
-      )
-      .presentationDetents([.medium])
-      .presentationDragIndicator(.hidden)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.hidden)
+      case .api:
+        ApiView()
+      }
     }
   }
 }

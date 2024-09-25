@@ -1,12 +1,12 @@
 import SwiftUI
-import DeviceActivity
+//import DeviceActivity
 
 // TODO: DeviceActivityReport not needed for mvp, provide some text instead.
 // extension DeviceActivityReport.Context {
 //  static let totalActivity = Self.init("Total Activity")
 // }
 
-struct ScreenTimeCardDetailView: View {
+//struct ScreenTimeCardDetailView: View {
 //  @State private var context: DeviceActivityReport.Context = .totalActivity
 //  @State private var filter = DeviceActivityFilter(
 //    segment: .daily(
@@ -16,8 +16,8 @@ struct ScreenTimeCardDetailView: View {
 //      )
 //    )
 //  )
-  var body: some View {
-    VStack {
+//  var body: some View {
+//    VStack {
 //      GeometryReader { geometry in
 //        VStack(alignment: .leading) {
 //          DeviceActivityReport(context)
@@ -25,9 +25,15 @@ struct ScreenTimeCardDetailView: View {
 //        }
 //        .border(.red)
 //      }
-      Text(
-        "Think about the amount of time spent every evening on things which don't matter."
-      )
-    }
+//    }
+//  }
+//}
+
+
+
+struct CardDetailView: View {
+  let card: Card
+  var body: some View {
+    Text(card.description)
   }
 }
