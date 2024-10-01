@@ -188,22 +188,20 @@ struct ScreenTimeView: View {
               await model.resolveButtonTapped()
             }
           } label: {
-            HStack {
-              Text("Resolve")
+            VStack {
               if model.isResolvingOngoing {
                 ProgressView()
               }
+              Text("Resolve")
+                .foregroundColor(model.isResolvedButtonDisabled ? Color.gray : Color.green)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.green.opacity(0.1))
+                .cornerRadius(12)
             }
           }
           .disabled(model.isResolvedButtonDisabled)
-
           Spacer()
-          //      Button {
-          //        model.clear()
-          //      } label: {
-          //        Text("DEBUG Clear")
-          //          .tint(.red)
-          //      }
         }
         .padding()
         .familyActivityPicker(
@@ -212,7 +210,7 @@ struct ScreenTimeView: View {
         )
         .toolbar {
           ToolbarItem(placement: .confirmationAction) {
-            Button("Select") {
+            Button("Choose Activities") {
               model.selectApplicationsTapped()
             }
             .tint(.green)
