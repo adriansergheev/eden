@@ -44,7 +44,7 @@ struct TutorialView: View {
       if let player = model.player {
         VideoPlayer(player: player)
       } else {
-        //TODO: Error handling
+        // TODO: Error handling
         Spacer()
       }
 

@@ -34,8 +34,8 @@ extension StorageClient: TestDependencyKey {
   }
 
   public static let failToWrite = StorageClient(
-    load: { url in Data() },
-    save: { data, url in
+    load: { _ in Data() },
+    save: { _, _ in
       struct SaveError: Error {}
       throw SaveError()
     }
@@ -46,6 +46,6 @@ extension StorageClient: TestDependencyKey {
       struct LoadError: Error {}
       throw LoadError()
     },
-    save: { newData, url in }
+    save: { _, _ in }
   )
 }
