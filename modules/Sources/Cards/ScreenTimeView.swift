@@ -193,10 +193,10 @@ struct ScreenTimeView: View {
                 ProgressView()
               }
               Text("Resolve")
-                .foregroundColor(model.isResolvedButtonDisabled ? Color.gray : Color.green)
+                .foregroundColor(model.isResolvedButtonDisabled ? Color.green.opacity(0.5) : Color.green)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.green.opacity(0.1))
+                .background(model.isResolvedButtonDisabled ? Color.gray.opacity(0.1) : Color.green.opacity(0.1))
                 .cornerRadius(12)
             }
           }

@@ -26,6 +26,9 @@ let package = Package(
         "StorageClient",
         .product(name: "SwiftUINavigation", package: "swift-navigation"),
         .product(name: "IdentifiedCollections", package: "swift-identified-collections")
+      ],
+      resources: [
+        .process("Resources/youtube-resolve.mp4")
       ]
     ),
     .target(

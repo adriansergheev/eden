@@ -64,8 +64,8 @@ public class CardsModel {
   public init() {
     self.cards = .init(uniqueElements: [
       .init(id: uuid(), title: "Claim your evenings", description: "You deserve to unwind.", target: .screenTime, status: .solved(false)),
-      .init(id: uuid(), title: "Take control of Youtube", description: "Think about the amount of time spent on things which don't matter.", target: .api, status: .solved(false)),
-      .init(id: uuid(), title: "Instagram", description: "Coming soon...", target: .api, status: .upcoming)
+      .init(id: uuid(), title: "Take control of Youtube", description: "Think about the amount of time spent on things which don't matter.", target: .tutorial, status: .solved(false)),
+      .init(id: uuid(), title: "Instagram", description: "Coming soon...", target: .tutorial, status: .upcoming)
     ])
     do {
       // previous cards status is present
@@ -112,7 +112,7 @@ public class CardsModel {
     destination = nil
   }
 
-  func onScreenTimeCompleted(card: Card) {
+  func onResolved(card: Card) {
     withAnimation {
       cards[id: card.id] = card
     }
@@ -214,14 +214,20 @@ public struct CardsView: View {
         ScreenTimeView(
           model: .init(
             card: card, onScreenTimeCompletion: { card in
-              model.onScreenTimeCompleted(card: card)
+              model.onResolved(card: card)
             }
           )
         )
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
-      case .api:
-        ApiView()
+      case .tutorial:
+        TutorialView(
+          model: .init(
+            card: card, onTutorialCompleted: { card in
+              model.onResolved(card: card)
+            }
+          )
+        )
       }
     }
   }

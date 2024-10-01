@@ -11,7 +11,7 @@ public struct Card: Equatable, Identifiable {
 
   public enum Target: Equatable {
     case screenTime
-    case api
+    case tutorial
   }
 
   public let id: UUID
