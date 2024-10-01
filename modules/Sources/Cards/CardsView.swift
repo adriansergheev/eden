@@ -193,12 +193,8 @@ public struct CardsView: View {
     .sheet(item: $model.destination.detail) { card in
       NavigationStack {
         CardDetailView(card: card)
-          .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-              Button("Dismiss") {
-                self.model.dismissCardButtonTapped()
-              }
-            }
+          .cardToolBar {
+            self.model.dismissCardButtonTapped()
           }
       }
     }
@@ -226,12 +222,8 @@ public struct CardsView: View {
             )
           }
         }
-        .toolbar {
-          ToolbarItem(placement: .cancellationAction) {
-            Button("Dismiss") {
-              self.model.dismissCardButtonTapped()
-            }
-          }
+        .cardToolBar {
+          self.model.dismissCardButtonTapped()
         }
       }
     }
@@ -278,6 +270,27 @@ public struct CardsView: View {
         }
       }
     }
+  }
+}
+
+extension View {
+  func cardToolBar(_ action: @escaping (() -> Void)) -> some View {
+      modifier(ToolBarModifier(action: action))
+    }
+}
+
+
+struct ToolBarModifier: ViewModifier {
+  let action: (() -> Void)
+  func body(content: Content) -> some View {
+    content
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button("Dismiss") {
+            action()
+          }
+        }
+      }
   }
 }
 
