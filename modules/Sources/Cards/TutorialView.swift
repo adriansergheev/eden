@@ -8,11 +8,9 @@ import IssueReporting
 final class TutorialModel {
   @ObservationIgnored
   var onTutorialCompleted: ((Card) -> Void)
-
-  var isPlaying: Bool = false
-  var card: Card
-
   private(set) var player: AVPlayer?
+
+  var card: Card
 
   @ObservationIgnored
   @Dependency(\.continuousClock) var clock
@@ -28,17 +26,13 @@ final class TutorialModel {
     else { return }
 
     self.player = AVPlayer(url: url)
-    try? await clock.sleep(for: .milliseconds(50))
+    try? await clock.sleep(for: .seconds(1))
     player?.play()
-    try? await clock.sleep(for: .milliseconds(300))
-    player?.pause()
   }
 
-  func togglePlay() {
-    guard let player else { return }
-    isPlaying ? player.pause() : player.play()
-    isPlaying.toggle()
-//    player.seek(to: .zero)
+  func markAsResolvedTapped() {
+    card.status = .solved(true)
+    onTutorialCompleted(card)
   }
 }
 
@@ -49,19 +43,40 @@ struct TutorialView: View {
     VStack {
       if let player = model.player {
         VideoPlayer(player: player)
-        Button {
-          model.togglePlay()
-        } label: {
-          Image(systemName: model.isPlaying ? "stop" : "play")
-            .padding()
-            .tint(.green)
-        }
       } else {
         //TODO: Error handling
+        Spacer()
       }
+
+      Button {
+        model.markAsResolvedTapped()
+      } label: {
+        Text("Mark as resolved")
+          .foregroundColor(Color.green)
+          .padding()
+          .frame(maxWidth: .infinity)
+          .background(Color.green.opacity(0.1))
+          .cornerRadius(12)
+          .padding()
+      }
+
     }
     .task {
       await model.task()
     }
   }
+}
+
+#Preview {
+  TutorialView(
+    model: .init(
+      card: .init(
+        id: .init(),
+        title: "test card",
+        description: "test description",
+        target: .tutorial,
+        status: .solved(false)
+      )
+    )
+  )
 }

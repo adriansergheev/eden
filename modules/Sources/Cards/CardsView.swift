@@ -12,17 +12,15 @@ extension String {
 @MainActor
 @Observable
 public class CardsModel {
-  enum Destination: Identifiable {
+  @CasePathable
+  @dynamicMemberLookup
+  enum Destination {
     case detail(Card)
     case action(Card)
+    case alert(AlertState<AlertAction>)
 
-    var id: UUID {
-      switch self {
-      case let .detail(card):
-        return card.id
-      case let .action(card):
-        return card.id
-      }
+    enum AlertAction {
+      case confirm(Card)
     }
   }
 
@@ -52,7 +50,7 @@ public class CardsModel {
   }
 
   @ObservationIgnored
-  var saveTask: Task<Void, Error>?
+  var saveDebouncedTask: Task<Void, Error>?
 
   @ObservationIgnored
   @Dependency(\.storageClient) var storageClient
@@ -84,9 +82,8 @@ public class CardsModel {
   }
 
   private func save() {
-    saveTask?.cancel()
-    saveTask = nil
-    saveTask = Task {
+    saveDebouncedTask?.cancel()
+    saveDebouncedTask = Task {
       try await clock.sleep(for: .milliseconds(300))
       let cardsStatus: [UUID: Bool?] = Dictionary(
         uniqueKeysWithValues: cards.map { card in
@@ -104,20 +101,64 @@ public class CardsModel {
     destination = .detail(card)
   }
 
+  var hasSeenTutorialDisclaimer: Bool = false
+
+  func alertButtonTapped(_ action: Destination.AlertAction?) {
+    switch action {
+    case let .confirm(card):
+      destination = .action(card)
+    case .none: break
+    }
+  }
+
   func actionButtonTapped(_ card: Card) {
-    destination = .action(card)
+    switch card.target {
+    case .tutorial:
+      if !(hasSeenTutorialDisclaimer || card.isSolved) {
+        defer { hasSeenTutorialDisclaimer = true }
+        destination = .alert(.disclaimer(card))
+        return
+      }
+      if card.isSolved {
+        var card = card
+        card.status = .solved(false)
+        update(card)
+        return
+      }
+      destination = .action(card)
+    case .screenTime:
+      destination = .action(card)
+    }
   }
 
   func dismissCardButtonTapped() {
     destination = nil
   }
 
-  func onResolved(card: Card) {
+  private func update(_ card: Card) {
     withAnimation {
       cards[id: card.id] = card
     }
     save()
+  }
+
+  func onResolved(card: Card) {
+    update(card)
     destination = nil
+  }
+}
+
+extension AlertState where Action == CardsModel.Destination.AlertAction {
+  static func disclaimer(_ card: Card) -> Self {
+    .init {
+      TextState("Action Required")
+    } actions: {
+      ButtonState(role: .cancel, action: .confirm(card)) {
+        TextState("Confirm")
+      }
+    } message: {
+      TextState("Some actions need to be done manually. \nFollow the provided tutorial to adjust settings on your device")
+    }
   }
 }
 
@@ -149,9 +190,9 @@ public struct CardsView: View {
       .navigationTitle("Your iPhone")
       .background(Color(UIColor.systemGroupedBackground))
     }
-    .sheet(item: $model.destination) { destination in
+    .sheet(item: $model.destination.detail) { card in
       NavigationStack {
-        makeDestination(destination)
+        CardDetailView(card: card)
           .toolbar {
             ToolbarItem(placement: .cancellationAction) {
               Button("Dismiss") {
@@ -160,6 +201,42 @@ public struct CardsView: View {
             }
           }
       }
+    }
+    .sheet(item: $model.destination.action) { card in
+      NavigationStack {
+        Group {
+          switch card.target {
+          case .screenTime:
+            ScreenTimeView(
+              model: .init(
+                card: card, onScreenTimeCompletion: { card in
+                  model.onResolved(card: card)
+                }
+              )
+            )
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.hidden)
+          case .tutorial:
+            TutorialView(
+              model: .init(
+                card: card, onTutorialCompleted: { card in
+                  model.onResolved(card: card)
+                }
+              )
+            )
+          }
+        }
+        .toolbar {
+          ToolbarItem(placement: .cancellationAction) {
+            Button("Dismiss") {
+              self.model.dismissCardButtonTapped()
+            }
+          }
+        }
+      }
+    }
+    .alert($model.destination.alert) { action in
+      model.alertButtonTapped(action)
     }
   }
 
@@ -199,35 +276,6 @@ public struct CardsView: View {
             secondaryAction: { model.whyShouldYouCareButtonTapped(card) }
           )
         }
-      }
-    }
-  }
-
-  @ViewBuilder
-  func makeDestination(_ destination: CardsModel.Destination) -> some View {
-    switch destination {
-    case let .detail(card):
-      CardDetailView(card: card)
-    case let .action(card):
-      switch card.target {
-      case .screenTime:
-        ScreenTimeView(
-          model: .init(
-            card: card, onScreenTimeCompletion: { card in
-              model.onResolved(card: card)
-            }
-          )
-        )
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.hidden)
-      case .tutorial:
-        TutorialView(
-          model: .init(
-            card: card, onTutorialCompleted: { card in
-              model.onResolved(card: card)
-            }
-          )
-        )
       }
     }
   }
