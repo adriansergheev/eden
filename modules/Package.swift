@@ -28,7 +28,7 @@ let package = Package(
         .product(name: "IdentifiedCollections", package: "swift-identified-collections")
       ],
       resources: [
-        .process("Resources/youtube-resolve.mp4")
+        .process("Resources/take-control-of-youtube.mp4")
       ]
     ),
     .target(

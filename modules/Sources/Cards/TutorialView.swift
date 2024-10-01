@@ -12,9 +12,7 @@ final class TutorialModel {
   var isPlaying: Bool = false
   var card: Card
 
-  private(set) var player = AVPlayer(
-    url: Bundle.module.url(forResource: "youtube-resolve", withExtension: "mp4")!
-  )
+  private(set) var player: AVPlayer?
 
   @ObservationIgnored
   @Dependency(\.continuousClock) var clock
@@ -25,16 +23,22 @@ final class TutorialModel {
   }
 
   func task() async {
+    let resourceName = card.title.replacingOccurrences(of: " ", with: "-").lowercased()
+    guard let url = Bundle.module.url(forResource: resourceName, withExtension: "mp4")
+    else { return }
+
+    self.player = AVPlayer(url: url)
     try? await clock.sleep(for: .milliseconds(50))
-    player.play()
+    player?.play()
     try? await clock.sleep(for: .milliseconds(300))
-    player.pause()
+    player?.pause()
   }
 
   func togglePlay() {
+    guard let player else { return }
     isPlaying ? player.pause() : player.play()
     isPlaying.toggle()
-    player.seek(to: .zero)
+//    player.seek(to: .zero)
   }
 }
 
@@ -43,12 +47,17 @@ struct TutorialView: View {
 
   var body: some View {
     VStack {
-      VideoPlayer(player: model.player)
-      Button {
-        model.togglePlay()
-      } label: {
-        Image(systemName: model.isPlaying ? "stop" : "play")
-          .padding()
+      if let player = model.player {
+        VideoPlayer(player: player)
+        Button {
+          model.togglePlay()
+        } label: {
+          Image(systemName: model.isPlaying ? "stop" : "play")
+            .padding()
+            .tint(.green)
+        }
+      } else {
+        //TODO: Error handling
       }
     }
     .task {

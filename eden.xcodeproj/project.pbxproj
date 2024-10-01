@@ -348,7 +348,6 @@
 			);
 			name = eden;
 			packageProductDependencies = (
-				042856A62C7384FE00915D9B /* Content */,
 				04924BC82CA1957000220203 /* Cards */,
 				04924BCC2CA1991D00220203 /* StorageClientLive */,
 			);
@@ -966,10 +965,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		042856A62C7384FE00915D9B /* Content */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Content;
-		};
 		04924BC82CA1957000220203 /* Cards */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Cards;
