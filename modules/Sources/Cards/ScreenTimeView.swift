@@ -129,7 +129,7 @@ public final class ScreenTimeModel {
       applications: activitySelection.applicationTokens,
       categories: activitySelection.categoryTokens,
       webDomains: activitySelection.webDomainTokens,
-      threshold: DateComponents(second: 1)
+      threshold: DateComponents(minute: 1)
     )
 
     let center = DeviceActivityCenter()
@@ -144,7 +144,6 @@ public final class ScreenTimeModel {
 
   func clear() {
     store.clearAllSettings()
-    store.shield.applications = nil
     try? storageClient.delete(key: .eveningKey)
   }
 
