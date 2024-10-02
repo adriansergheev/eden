@@ -15,6 +15,11 @@ extension StorageClient: DependencyKey {
     },
     save: { data, key in
       try data.write(to: URL.base.appendingPathComponent(key).appendingPathExtension("json"))
+    },
+    delete: { key in
+      return try FileManager.default.removeItem(
+        at: URL.base.appendingPathComponent(key).appendingPathExtension("json")
+      )
     }
   )
 }

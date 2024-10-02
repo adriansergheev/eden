@@ -4,8 +4,9 @@ import Foundation
 
 @DependencyClient
 public struct StorageClient: Sendable {
-  public var load: @Sendable (_ from: String) throws -> Data
+  public var load: @Sendable (_ key: String) throws -> Data
   public var save: @Sendable (Data, _ to: String) throws -> Void
+  public var delete: @Sendable (_ key: String) throws -> Void
 }
 
 extension DependencyValues {
@@ -29,23 +30,8 @@ extension StorageClient: TestDependencyKey {
         }
         return data
       },
-      save: { newData, _ in data.setValue(newData) }
+      save: { newData, _ in data.setValue(newData) },
+      delete: { _ in data.setValue(nil) }
     )
   }
-
-  public static let failToWrite = StorageClient(
-    load: { _ in Data() },
-    save: { _, _ in
-      struct SaveError: Error {}
-      throw SaveError()
-    }
-  )
-
-  public static let failToLoad = StorageClient(
-    load: { _ in
-      struct LoadError: Error {}
-      throw LoadError()
-    },
-    save: { _, _ in }
-  )
 }

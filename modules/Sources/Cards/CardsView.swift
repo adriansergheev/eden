@@ -69,7 +69,7 @@ public class CardsModel {
       // previous cards status is present
       let cardsStatus = try JSONDecoder().decode(
         [UUID: Bool?].self,
-        from: try storageClient.load(from: .cardsStatusKey)
+        from: try storageClient.load(key: .cardsStatusKey)
       )
       for card in cardsStatus {
         if let isSolved = card.value {

@@ -105,7 +105,7 @@ public final class ScreenTimeModel {
     do {
       return try JSONDecoder().decode(
         FamilyActivitySelection.self,
-        from: try storageClient.load(from: .eveningKey)
+        from: try storageClient.load(key: .eveningKey)
       )
     } catch {
       return nil
@@ -145,6 +145,7 @@ public final class ScreenTimeModel {
   func clear() {
     store.clearAllSettings()
     store.shield.applications = nil
+    try? storageClient.delete(key: .eveningKey)
   }
 
   func selectApplicationsTapped() {
