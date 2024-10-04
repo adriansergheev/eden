@@ -22,20 +22,28 @@ extension URL {
 class DeviceActivityMonitorExtension: DeviceActivityMonitor {
   let store = ManagedSettingsStore(named: .store)
 
-  override func intervalDidStart(for activity: DeviceActivityName) {
-    super.intervalDidStart(for: activity)
+  func getActivities() -> FamilyActivitySelection? {
     do {
-      let applications = try JSONDecoder().decode(
+      return try JSONDecoder().decode(
         FamilyActivitySelection.self,
         from: try Data(contentsOf: URL.base.appendingPathComponent(.eveningKey).appendingPathExtension("json"))
-      ).applicationTokens
-      store.shield.applications = applications
+      )
     } catch {}
+    return nil
+  }
+
+  override func intervalDidStart(for activity: DeviceActivityName) {
+    super.intervalDidStart(for: activity)
+    store.clearAllSettings()
+    if let activities = getActivities() {
+      store.shield.applications = activities.applicationTokens
+      store.shield.applicationCategories = .specific(activities.categoryTokens, except: .init())
+    }
   }
 
   override func intervalDidEnd(for activity: DeviceActivityName) {
     super.intervalDidEnd(for: activity)
-    store.shield.applications = nil
+    store.clearAllSettings()
   }
 
   override func eventDidReachThreshold(
@@ -43,18 +51,14 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     activity: DeviceActivityName
   ) {
     super.eventDidReachThreshold(event, activity: activity)
-    // Handle the event reaching its threshold.
   }
 
   override func intervalWillStartWarning(for activity: DeviceActivityName) {
     super.intervalWillStartWarning(for: activity)
-    // Handle the warning before the interval starts.
   }
 
   override func intervalWillEndWarning(for activity: DeviceActivityName) {
     super.intervalWillEndWarning(for: activity)
-
-    // Handle the warning before the interval ends.
   }
 
   override func eventWillReachThresholdWarning(
@@ -62,6 +66,5 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     activity: DeviceActivityName
   ) {
     super.eventWillReachThresholdWarning(event, activity: activity)
-    // Handle the warning before the event reaches its threshold.
   }
 }

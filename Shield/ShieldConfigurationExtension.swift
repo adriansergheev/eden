@@ -12,8 +12,8 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
       backgroundBlurStyle: .dark,
       backgroundColor: .black,
       icon: nil,
-      title: .init(text: "Time to unwind.", color: .white),
-      subtitle: nil,
+      title: .init(text: "Claim your evenings", color: .white),
+      subtitle: .init(text: "It is time to unwind and relax", color: .white),
       primaryButtonLabel: nil,
       primaryButtonBackgroundColor: .green,
       secondaryButtonLabel: nil
