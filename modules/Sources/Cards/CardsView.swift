@@ -157,7 +157,7 @@ extension AlertState where Action == CardsModel.Destination.AlertAction {
         TextState("Confirm")
       }
     } message: {
-      TextState("Some actions need to be done manually. \nFollow the provided tutorial to adjust settings on your device")
+      TextState("Some actions need to be done manually. \nFollow the provided tutorial to adjust settings on your device.")
     }
   }
 }
@@ -377,7 +377,7 @@ struct CardView: View {
       .frame(maxWidth: .infinity)
     }
     .padding()
-    .background(colorScheme == .light ? Color.white : nil)
+    .background(colorScheme == .light ? Color.white : Color.gray.opacity(0.2))
     .clipShape(RoundedRectangle(cornerRadius: 15))
     .shadow(radius: 5)
     .padding(.horizontal, 8)
