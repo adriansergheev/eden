@@ -74,6 +74,7 @@ struct TutorialView: View {
         id: .init(),
         title: "test card",
         description: "test description",
+        body: "test body",
         target: .tutorial,
         status: .solved(false)
       )

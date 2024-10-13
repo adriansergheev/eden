@@ -60,11 +60,42 @@ public class CardsModel {
   @Dependency(\.uuid) var uuid
 
   public init() {
-    self.cards = .init(uniqueElements: [
-      .init(id: uuid(), title: "Claim your evenings", description: "You deserve to unwind.", target: .screenTime, status: .solved(false)),
-      .init(id: uuid(), title: "Take control of Youtube", description: "Think about the amount of time spent on things which don't matter.", target: .tutorial, status: .solved(false)),
-      .init(id: uuid(), title: "Instagram", description: "Coming soon...", target: .tutorial, status: .upcoming)
-    ])
+    self.cards = .init(
+      uniqueElements: [
+        .init(
+          id: uuid(),
+          title: "Claim your evenings",
+          description: "You deserve to unwind.",
+          body: """
+Reclaiming your evenings means consciously limiting distractions and dedicating time to unwind and do what truly matters to you.
+
+Evenings are often stolen by endless scrolling and notifications. Taking control of this time can improve your overall well-being.
+""",
+          target: .screenTime,
+          status: .solved(false)
+        ),
+        .init(
+          id: uuid(),
+          title: "Take control of Youtube",
+          description: "Reflect on how much of your time is lost.",
+          body: """
+Taking control of YouTube means setting boundaries so you can enjoy content that matters without letting endless recommendations take over your valuable time.
+
+YouTube’s algorithms are designed to keep you watching, but you can make choices that help you stay in control rather than scrolling endlessly.
+""",
+          target: .tutorial,
+          status: .solved(false)
+        ),
+        .init(
+          id: uuid(),
+          title: "Instagram",
+          description: "Coming soon...",
+          body: "upcoming body",
+          target: .tutorial,
+          status: .upcoming
+        )
+      ]
+    )
     do {
       // previous cards status is present
       let cardsStatus = try JSONDecoder().decode(
@@ -275,8 +306,8 @@ public struct CardsView: View {
 
 extension View {
   func cardToolBar(_ action: @escaping (() -> Void)) -> some View {
-      modifier(ToolBarModifier(action: action))
-    }
+    modifier(ToolBarModifier(action: action))
+  }
 }
 
 

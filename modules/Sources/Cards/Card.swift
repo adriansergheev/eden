@@ -17,6 +17,7 @@ public struct Card: Equatable, Identifiable {
   public let id: UUID
   public let title: String
   public let description: String
+  public let body: String
   public let target: Target
   public var status: Status
 }
