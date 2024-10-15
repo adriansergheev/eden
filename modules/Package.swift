@@ -9,9 +9,11 @@ let package = Package(
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
     .library(name: "Cards", targets: ["Cards"]),
+    .library(name: "Build", targets: ["Build"]),
     .library(name: "Settings", targets: ["Settings"]),
     .library(name: "StorageClient", targets: ["StorageClient"]),
-    .library(name: "StorageClientLive", targets: ["StorageClientLive"])
+    .library(name: "StorageClientLive", targets: ["StorageClientLive"]),
+    .library(name: "UIApplicationClient", targets: ["UIApplicationClient"])
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.0.6"),
@@ -19,8 +21,12 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "1.1.0")
   ],
   targets: [
-    // Targets are the basic building blocks of a package, defining a module or a test suite.
-    // Targets can depend on other targets in this package and products from dependencies.
+    .target(
+      name: "Build",
+      dependencies: [
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
     .target(
       name: "Cards",
       dependencies: [
@@ -33,7 +39,11 @@ let package = Package(
       ]
     ),
     .target(
-      name: "Settings"
+      name: "Settings",
+      dependencies: [
+        "Build",
+        "UIApplicationClient"
+      ]
     ),
     .target(
       name: "StorageClient", dependencies: [
@@ -44,6 +54,11 @@ let package = Package(
     .target(
       name: "StorageClientLive", dependencies: [
         "StorageClient",
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
+    .target(
+      name: "UIApplicationClient", dependencies: [
         .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),

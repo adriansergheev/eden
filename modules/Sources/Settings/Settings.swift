@@ -1,20 +1,27 @@
 import SwiftUI
+import Build
+import Dependencies
+import UIApplicationClient
 
 //TODO: move
 extension CGFloat {
-  public static func grid(_ n: Int) -> Self { Self(n) * 4.0 }
+  public static func grid(_ n: Int) -> Self { Self(n) * 3.0 }
 }
 
 @MainActor
 @Observable
 public class SettingsModel {
+  @ObservationIgnored
+  @Dependency(\.build) var build
+  @ObservationIgnored
+  @Dependency(\.applicationClient) var applicationClient
 
   init() {
 
   }
 
-  func shareIdeasButtonTapped() {
-
+  func shareIdeasButtonTapped() async {
+    await composeEmail(subject: "I would like to share some ideas")
   }
 
   func leaveAReviewButtonTapped() {
@@ -25,8 +32,30 @@ public class SettingsModel {
 
   }
 
-  func termsAndPrivacyButtonTapepd() {
+  func termsAndPrivacyButtonTapped() {
 
+  }
+
+  func reportABugButtonTapped() async {
+    await composeEmail(subject: "I found a bug in Clario")
+  }
+
+  private func composeEmail(subject: String) async {
+    var components = URLComponents()
+    components.scheme = "mailto"
+    components.path = "sergheevdev@icloud.com"
+    components.queryItems = [
+      URLQueryItem(name: "subject", value: subject),
+      URLQueryItem(
+        name: "body",
+        value: """
+---
+Build: \(String(describing: self.build.number()))
+"""
+      )
+    ]
+
+    _ = await self.applicationClient.open(components.url!, [:])
   }
 }
 
@@ -44,7 +73,7 @@ public struct SettingsView: View {
         VStack(spacing: .grid(8)) {
           Cell {
             Button {
-              model.shareIdeasButtonTapped()
+              Task { await model.shareIdeasButtonTapped() }
             } label: {
               Label(text: "Share Ideas")
             }
@@ -67,7 +96,7 @@ public struct SettingsView: View {
           .disabled(true)
           Cell {
             Button {
-              model.termsAndPrivacyButtonTapepd()
+              model.termsAndPrivacyButtonTapped()
             } label: {
               Label(text: "Terms / Privacy")
             }
@@ -77,14 +106,14 @@ public struct SettingsView: View {
         .padding(.grid(4))
 
         VStack(alignment: .leading, spacing: .grid(1)) {
-          //              if let buildNumber = self.viewStore.buildNumber {
-          //                Text("Build \(buildNumber.rawValue)")
-          //                  .fontWeight(.thin)
-          //                  .multilineTextAlignment(.leading)
-          //                  .font(.footnote)
-          //              }
+          if let buildNumber = model.build.number() {
+            Text("Build \(buildNumber)")
+              .fontWeight(.thin)
+              .multilineTextAlignment(.leading)
+              .font(.footnote)
+          }
           Button {
-            //                viewStore.send(.reportABugButtonTapped)
+            Task { await model.reportABugButtonTapped() }
           } label: {
             Text("Report a bug")
               .fontWeight(.thin)
