@@ -9,6 +9,7 @@ let package = Package(
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
     .library(name: "Cards", targets: ["Cards"]),
+    .library(name: "Settings", targets: ["Settings"]),
     .library(name: "StorageClient", targets: ["StorageClient"]),
     .library(name: "StorageClientLive", targets: ["StorageClientLive"])
   ],
@@ -30,6 +31,9 @@ let package = Package(
       resources: [
         .process("Resources/take-control-of-youtube.mp4")
       ]
+    ),
+    .target(
+      name: "Settings"
     ),
     .target(
       name: "StorageClient", dependencies: [
