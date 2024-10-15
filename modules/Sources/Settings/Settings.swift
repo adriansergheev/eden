@@ -10,13 +10,13 @@ extension CGFloat {
 
 @MainActor
 @Observable
-public class SettingsModel {
+public class SettingsModel: Identifiable {
   @ObservationIgnored
   @Dependency(\.build) var build
   @ObservationIgnored
   @Dependency(\.applicationClient) var applicationClient
 
-  init() {
+  public init() {
 
   }
 
@@ -60,10 +60,10 @@ Build: \(String(describing: self.build.number()))
 }
 
 public struct SettingsView: View {
-  let model: SettingsModel
+  @State var model: SettingsModel
   @Environment(\.colorScheme) var colorScheme
 
-  init(model: SettingsModel) {
+  public init(model: SettingsModel) {
     self.model = model
   }
 
@@ -128,7 +128,6 @@ public struct SettingsView: View {
       }
     }
     .padding(.grid(4))
-    .background(colorScheme == .light ? Color.gray.opacity(0.2) : .black)
     .tint(.green.opacity(0.9))
   }
 }

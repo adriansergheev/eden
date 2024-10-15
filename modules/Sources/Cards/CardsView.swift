@@ -2,6 +2,7 @@ import SwiftUI
 import IssueReporting
 import SwiftUINavigation
 import Dependencies
+import Settings
 import StorageClient
 import IdentifiedCollections
 
@@ -18,6 +19,7 @@ public class CardsModel {
     case detail(Card)
     case action(Card)
     case alert(AlertState<AlertAction>)
+    case settings(SettingsModel)
 
     enum AlertAction {
       case confirm(Card)
@@ -177,6 +179,14 @@ Taking control of YouTube means setting boundaries so you can enjoy content that
     update(card)
     destination = nil
   }
+
+  func onOpenSettingsButtonTapped() {
+    destination = .settings(.init())
+  }
+
+  func onDismissSettingsButtonTapped() {
+    destination = nil
+  }
 }
 
 extension AlertState where Action == CardsModel.Destination.AlertAction {
@@ -202,7 +212,7 @@ public struct CardsView: View {
   }
 
   public var body: some View {
-    NavigationView {
+    ScrollView {
       VStack {
         HStack {
           Text("Working for you")
@@ -210,17 +220,22 @@ public struct CardsView: View {
           Spacer()
         }
         .padding(.horizontal)
-        ScrollView {
-          makeSection(nil, cards: model.unSolvedCards)
-          makeSection("Resolved", cards: model.cards.filter(\.isSolved))
-          makeSection("Upcoming", cards: model.upcomingCards)
-        }
-        .padding(.vertical, 4)
-        .padding(.horizontal, 8)
+        makeSection(nil, cards: model.unSolvedCards)
+        makeSection("Resolved", cards: model.cards.filter(\.isSolved))
+        makeSection("Upcoming", cards: model.upcomingCards)
       }
-      .navigationTitle("Your iPhone")
-      .background(Color(UIColor.systemGroupedBackground))
     }
+    .padding(.vertical, 4)
+    .padding(.horizontal, 8)
+    .toolbar {
+      Button {
+        model.onOpenSettingsButtonTapped()
+      } label: {
+        Image(systemName: "gear.circle.fill")
+          .tint(.green)
+      }
+    }
+    .navigationTitle("Your iPhone")
     .sheet(item: $model.destination.detail) { card in
       NavigationStack {
         CardDetailView(card: card)
@@ -256,6 +271,19 @@ public struct CardsView: View {
         .cardToolBar {
           self.model.dismissCardButtonTapped()
         }
+      }
+    }
+    .sheet(item: $model.destination.settings) { model in
+      NavigationStack {
+        SettingsView(model: model)
+          .navigationTitle("Settings")
+          .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+              Button("Done") {
+                self.model.onDismissSettingsButtonTapped()
+              }
+            }
+          }
       }
     }
     .alert($model.destination.alert) { action in

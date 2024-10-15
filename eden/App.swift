@@ -9,7 +9,9 @@ struct EdenApp: App {
       withDependencies {
         $0.uuid = .incrementing
       } operation: {
-        CardsView(model: .init())
+        NavigationStack {
+          CardsView(model: .init())
+        }
       }
     }
   }

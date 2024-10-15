@@ -30,6 +30,7 @@ let package = Package(
     .target(
       name: "Cards",
       dependencies: [
+        "Settings",
         "StorageClient",
         .product(name: "SwiftUINavigation", package: "swift-navigation"),
         .product(name: "IdentifiedCollections", package: "swift-identified-collections")
