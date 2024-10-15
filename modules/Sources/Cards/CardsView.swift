@@ -67,9 +67,9 @@ public class CardsModel {
           title: "Claim your evenings",
           description: "You deserve to unwind.",
           body: """
-Reclaiming your evenings means consciously limiting distractions and dedicating time to unwind and do what truly matters to you.
-
 Evenings are often stolen by endless scrolling and notifications. Taking control of this time can improve your overall well-being.
+
+Reclaiming your evenings means consciously limiting distractions and dedicating time to unwind and do what truly matters to you.
 """,
           target: .screenTime,
           status: .solved(false)
@@ -79,9 +79,9 @@ Evenings are often stolen by endless scrolling and notifications. Taking control
           title: "Take control of Youtube",
           description: "Reflect on how much of your time is lost.",
           body: """
-Taking control of YouTube means setting boundaries so you can enjoy content that matters without letting endless recommendations take over your valuable time.
-
 YouTube’s algorithms are designed to keep you watching, but you can make choices that help you stay in control rather than scrolling endlessly.
+
+Taking control of YouTube means setting boundaries so you can enjoy content that matters without letting endless recommendations take over your valuable time.
 """,
           target: .tutorial,
           status: .solved(false)
