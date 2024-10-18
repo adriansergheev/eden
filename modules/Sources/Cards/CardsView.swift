@@ -66,6 +66,18 @@ public class CardsModel {
       uniqueElements: [
         .init(
           id: uuid(),
+          title: "Claim your mornings",
+          description: "Start your day.",
+          body: """
+Mornings can easily slip away with distractions. Taking control of your mornings sets the tone for a more productive and focused day.
+
+Owning your mornings means intentionally limiting distractions and dedicating time to what is most important for you.
+""",
+          target: .screenTime(.morning),
+          status: .solved(false)
+        ),
+        .init(
+          id: uuid(),
           title: "Claim your evenings",
           description: "You deserve to unwind.",
           body: """
@@ -73,7 +85,7 @@ Evenings are often stolen by endless scrolling and notifications. Taking control
 
 Reclaiming your evenings means consciously limiting distractions and dedicating time to unwind and do what truly matters to you.
 """,
-          target: .screenTime,
+          target: .screenTime(.evening),
           status: .solved(false)
         ),
         .init(

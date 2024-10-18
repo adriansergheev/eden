@@ -8,6 +8,7 @@ let package = Package(
   platforms: [.iOS(.v17)],
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
+    .library(name: "ActivityModel", targets: ["ActivityModel"]),
     .library(name: "Cards", targets: ["Cards"]),
     .library(name: "Build", targets: ["Build"]),
     .library(name: "Settings", targets: ["Settings"]),
@@ -22,6 +23,9 @@ let package = Package(
   ],
   targets: [
     .target(
+      name: "ActivityModel"
+    ),
+    .target(
       name: "Build",
       dependencies: [
         .product(name: "Dependencies", package: "swift-dependencies")
@@ -30,6 +34,7 @@ let package = Package(
     .target(
       name: "Cards",
       dependencies: [
+        "ActivityModel",
         "Settings",
         "StorageClient",
         .product(name: "SwiftUINavigation", package: "swift-navigation"),

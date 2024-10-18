@@ -1,3 +1,4 @@
+import ActivityModel
 import Dependencies
 import SwiftUI
 import ManagedSettings
@@ -5,22 +6,6 @@ import FamilyControls
 import DeviceActivity
 import IssueReporting
 import StorageClient
-
-extension DeviceActivityName {
-  static let daily = DeviceActivityName("eden.daily")
-}
-
-extension DeviceActivityEvent.Name {
-  static let eveningKey = Self(String.eveningKey)
-}
-
-extension ManagedSettingsStore.Name {
-  static let evening = Self(String.eveningKey)
-}
-
-extension String {
-  fileprivate static let eveningKey = "eden-evening"
-}
 
 @MainActor
 @Observable
@@ -35,8 +20,13 @@ public final class ScreenTimeModel {
   var card: Card
   var isInProgress: Bool = false
 
+  struct Store {
+    let wrappedStore: ManagedSettingsStore
+    let name: ManagedSettingsStore.Name
+  }
+
   @ObservationIgnored
-  let store = ManagedSettingsStore(named: .evening)
+  let store: Store
   @ObservationIgnored
   @Dependency(\.storageClient) var storageClient
   @ObservationIgnored
@@ -49,15 +39,26 @@ public final class ScreenTimeModel {
     onScreenTimeCompletion: @escaping ((Card) -> Void) = unimplemented("onScreenTimeCompletion")
   ) {
     self.card = card
+    let dailyPeriod = card.target.screenTime!
+    let name = ManagedSettingsStore.Name(rawValue: dailyPeriod.rawValue)
+    self.store = .init(wrappedStore: .init(named: name), name: name)
     self.onScreenTimeCompletion = onScreenTimeCompletion
     var startIntervalComponents = DateComponents()
-    startIntervalComponents.hour = 18
-    startIntervalComponents.minute = 0
-    let startInterval = Calendar.current.date(from: startIntervalComponents)!
-
     var endIntervalComponents = DateComponents()
-    endIntervalComponents.hour = 22
-    endIntervalComponents.minute = 0
+
+    switch dailyPeriod {
+    case .evening:
+      startIntervalComponents.hour = 18
+      startIntervalComponents.minute = 0
+      endIntervalComponents.hour = 22
+      endIntervalComponents.minute = 0
+    case .morning:
+      startIntervalComponents.hour = 6
+      startIntervalComponents.minute = 0
+      endIntervalComponents.hour = 12
+      endIntervalComponents.minute = 0
+    }
+    let startInterval = Calendar.current.date(from: startIntervalComponents)!
     let endInterval = Calendar.current.date(from: endIntervalComponents)!
 
     startTime = startInterval
@@ -105,7 +106,7 @@ public final class ScreenTimeModel {
     do {
       return try JSONDecoder().decode(
         FamilyActivitySelection.self,
-        from: try storageClient.load(key: .eveningKey)
+        from: try storageClient.load(key: self.store.name.rawValue)
       )
     } catch {
       return nil
@@ -125,26 +126,26 @@ public final class ScreenTimeModel {
     )
 
     // eventDidReachThreshold
-    let event = DeviceActivityEvent(
-      applications: activitySelection.applicationTokens,
-      categories: activitySelection.categoryTokens,
-      webDomains: activitySelection.webDomainTokens,
-      threshold: DateComponents(minute: 1)
-    )
+//    let event = DeviceActivityEvent(
+//      applications: activitySelection.applicationTokens,
+//      categories: activitySelection.categoryTokens,
+//      webDomains: activitySelection.webDomainTokens,
+//      threshold: DateComponents(minute: 1)
+//    )
 
     let center = DeviceActivityCenter()
     center.stopMonitoring()
     try center.startMonitoring(
-      .daily,
-      during: schedule,
-      events: [.eveningKey: event]
+      .init(self.store.name.rawValue),
+      during: schedule
+//      events: [.init(self.store.name.rawValue): event]
     )
-    try storageClient.save(JSONEncoder().encode(activitySelection), to: .eveningKey)
+    try storageClient.save(JSONEncoder().encode(activitySelection), to: self.store.name.rawValue)
   }
 
   func clear() {
-    store.clearAllSettings()
-    try? storageClient.delete(key: .eveningKey)
+    store.wrappedStore.clearAllSettings()
+    try? storageClient.delete(key: self.store.name.rawValue)
   }
 
   func selectApplicationsTapped() {
@@ -232,7 +233,7 @@ struct ScreenTimeView: View {
         title: "Title",
         description: "Description",
         body: "Body",
-        target: .screenTime,
+        target: .screenTime(.morning),
         status: .upcoming
       )
     )

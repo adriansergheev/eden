@@ -40,7 +40,7 @@ Reclaiming your evenings means consciously limiting distractions and dedicating 
 
 Evenings are often stolen by endless scrolling and notifications. Taking control of this time can improve your overall well-being.
 """,
-      target: .screenTime,
+      target: .screenTime(.morning),
       status: .solved(false)
     )
   )

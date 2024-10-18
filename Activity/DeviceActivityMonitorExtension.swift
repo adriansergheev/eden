@@ -1,15 +1,8 @@
+import ActivityModel
 import DeviceActivity
 import Foundation
 import ManagedSettings
 import FamilyControls
-
-extension String {
-  fileprivate static let eveningKey = "eden-evening"
-}
-
-extension ManagedSettingsStore.Name {
-  static let store = Self(.eveningKey)
-}
 
 extension URL {
   fileprivate static let base = FileManager.default.containerURL(
@@ -20,13 +13,20 @@ extension URL {
 // Optionally override any of the functions below.
 // Make sure that your class name matches the NSExtensionPrincipalClass in your Info.plist.
 class DeviceActivityMonitorExtension: DeviceActivityMonitor {
-  let store = ManagedSettingsStore(named: .store)
+  var stores = [String: ManagedSettingsStore]()
 
-  func getActivities() -> FamilyActivitySelection? {
+  public override init() {
+    super.init()
+    for period in DailyPeriod.allCases {
+      stores[period.rawValue] = .init(named: .init(period.rawValue))
+    }
+  }
+
+  func getActivities(for key: String) -> FamilyActivitySelection? {
     do {
       return try JSONDecoder().decode(
         FamilyActivitySelection.self,
-        from: try Data(contentsOf: URL.base.appendingPathComponent(.eveningKey).appendingPathExtension("json"))
+        from: try Data(contentsOf: URL.base.appendingPathComponent(key).appendingPathExtension("json"))
       )
     } catch {}
     return nil
@@ -34,16 +34,17 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
 
   override func intervalDidStart(for activity: DeviceActivityName) {
     super.intervalDidStart(for: activity)
-    store.clearAllSettings()
-    if let activities = getActivities() {
-      store.shield.applications = activities.applicationTokens
-      store.shield.applicationCategories = .specific(activities.categoryTokens, except: .init())
+    stores[activity.rawValue]?.clearAllSettings()
+
+    if let activities = getActivities(for: activity.rawValue) {
+      stores[activity.rawValue]?.shield.applications = activities.applicationTokens
+      stores[activity.rawValue]?.shield.applicationCategories = .specific(activities.categoryTokens, except: .init())
     }
   }
 
   override func intervalDidEnd(for activity: DeviceActivityName) {
     super.intervalDidEnd(for: activity)
-    store.clearAllSettings()
+    stores[activity.rawValue]?.clearAllSettings()
   }
 
   override func eventDidReachThreshold(

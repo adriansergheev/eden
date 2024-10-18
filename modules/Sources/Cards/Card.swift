@@ -1,3 +1,4 @@
+import ActivityModel
 import Foundation
 import CasePaths
 
@@ -9,8 +10,10 @@ public struct Card: Equatable, Identifiable {
     case upcoming
   }
 
+  @CasePathable
+  @dynamicMemberLookup
   public enum Target: Equatable {
-    case screenTime
+    case screenTime(DailyPeriod)
     case tutorial
   }
 

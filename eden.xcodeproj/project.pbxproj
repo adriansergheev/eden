@@ -14,6 +14,7 @@
 		0463F1992C7F757B006BB463 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0463F1852C7F7543006BB463 /* ManagedSettings.framework */; };
 		0463F19C2C7F757B006BB463 /* ShieldActionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0463F19B2C7F757B006BB463 /* ShieldActionExtension.swift */; };
 		0463F1A12C7F757B006BB463 /* ShieldAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0463F1982C7F757B006BB463 /* ShieldAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		048A285D2CC298C0005D18CC /* ActivityModel in Frameworks */ = {isa = PBXBuildFile; productRef = 048A285C2CC298C0005D18CC /* ActivityModel */; };
 		04924BC92CA1957000220203 /* Cards in Frameworks */ = {isa = PBXBuildFile; productRef = 04924BC82CA1957000220203 /* Cards */; };
 		04924BCD2CA1991D00220203 /* StorageClientLive in Frameworks */ = {isa = PBXBuildFile; productRef = 04924BCC2CA1991D00220203 /* StorageClientLive */; };
 		04A146382C7E7A25004AA0C5 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04A146372C7E7A25004AA0C5 /* DeviceActivity.framework */; };
@@ -137,6 +138,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				04A146382C7E7A25004AA0C5 /* DeviceActivity.framework in Frameworks */,
+				048A285D2CC298C0005D18CC /* ActivityModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,6 +308,7 @@
 			);
 			name = Activity;
 			packageProductDependencies = (
+				048A285C2CC298C0005D18CC /* ActivityModel */,
 			);
 			productName = Activity;
 			productReference = 04A146362C7E7A25004AA0C5 /* Activity.appex */;
@@ -979,6 +982,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		048A285C2CC298C0005D18CC /* ActivityModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ActivityModel;
+		};
 		04924BC82CA1957000220203 /* Cards */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Cards;
